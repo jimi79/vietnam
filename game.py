@@ -4,6 +4,7 @@ import curses
 import time
 import datetime
 import random
+import json
 
 
 # forest: invisible but can't see
@@ -31,7 +32,7 @@ COMMAND_DEFEND = "DEFEND"
 COMMAND_WORK = "WORK"
 
 QUERY_DONE = 2 # query complete, could be executed
-QUERY_FAIL = 1 # key not authorized
+QUERY_ERR = 1 # key not authorized
 QUERY_NEXT = 0 # query not complete
 
 SIZE = 10
@@ -191,15 +192,21 @@ class Query():
 				} for a in self.teams.get_list()
 			}
 		}
+		self.query = [] # current query
 		self.end = False
 
 	def __init__(self, teams):
-		self.query = [] # current query
 		self.teams = teams
 		self.init() 
 
 	def get_text(self):
-		return self.pos # nope
+		txt = [item['text'] for item in self.query]
+		return ' '.join(txt)
+
+	def get_help(self): 
+		values = self.pos['values']
+		lst = ["%s: %s" % (key, values[key]['text']) for key in values.keys()]
+		return "\n".join(lst)
 
 	def next_query(self):
 		if len(self.query) == 1:
@@ -207,21 +214,21 @@ class Query():
 				'name': 'action', 
 				'values': 
 					{
-						'L': {'text': 'look', 'code': COMMAND_LOOK},
-						'D': {'text': 'defend', 'code': COMMAND_DEFEND},
-						#'W': {'text': 'work', 'code': COMMAND_DEFEND} #only if available, i need the map here, or some goal object, not sure. i think the map though, which will have a goal object
-						'M': {'text': 'move', 'code': COMMAND_MOVE}
+						'l': {'text': 'look', 'code': COMMAND_LOOK},
+						'd': {'text': 'defend', 'code': COMMAND_DEFEND},
+						#'w': {'text': 'work', 'code': COMMAND_DEFEND} #only if available, i need the map here, or some goal object, not sure. i think the map though, which will have a goal object
+						'm': {'text': 'move', 'code': COMMAND_MOVE}
 					}
 				}
 
 		if len(self.query) == 2:
-			if self.query[-1] == COMMAND_LOOK:
+			if self.query[-1]['code'] == COMMAND_LOOK:
 				self.end = True
-			if self.query[-1] == COMMAND_DEFEND:
+			if self.query[-1]['code'] == COMMAND_DEFEND:
 				self.end = True 
-			if self.query[-1] == COMMAND_WORK:
+			if self.query[-1]['code'] == COMMAND_WORK:
 				self.end = True
-			if self.query[-1] == COMMAND_MOVE:
+			if self.query[-1]['code'] == COMMAND_MOVE:
 				self.pos = {
 					'name': 'direction', 
 					'values': 
@@ -242,15 +249,22 @@ class Query():
 
 
 	def test_key(self, key): 
-		if key in self.pos['values'].keys():
-			self.query.append(self.pos['values'][key]['code'])
-			self.next_query()
-			if self.end:
-				return QUERY_DONE
+		if not self.end:
+			if key in self.pos['values'].keys():
+				self.query.append(
+					{
+						'code': self.pos['values'][key]['code'],
+						'text': self.pos['values'][key]['text']
+					})
+				self.next_query()
+				if self.end:
+					return QUERY_DONE
+				else:
+					return QUERY_NEXT
 			else:
-				return QUERY_NEXT
+				return QUERY_ERR
 		else:
-			return QUERY_FAIL
+			return QUERY_ERR
 
 class Goals():
 	def __init__(self):
@@ -271,12 +285,13 @@ class Main():
 
 	def __init__(self):
 		self.init_curses()
-		self.map = Map_(SIZE, SIZE)
+		self.map = Map_()
 		self.map.randomize()
-		self.query_win = curses.newwin(2, 80, 1, 0)
-		self.log_win = curses.newwin(10, 80, 3, 0)
+		self.query_win = curses.newwin(1, 60, 0, 0)
+		self.log_win = curses.newwin(10, 60, 2, 0)
 		self.log_win.scrollok(True)
-		self.debug_win = curses.newwin(11, 12, 15, 0)
+		self.debug_win = curses.newwin(11, 12, 15, 0) # display the map, cheat
+		self.help_win = curses.newwin(10, 30, 0, 62)
 		self.player_teams = Teams(COUNT_PLAYER_TEAMS, self.map)
 		self.npc_teams = Teams(COUNT_NPC_TEAMS, self.map)
 
@@ -300,25 +315,46 @@ class Main():
 	def get_key(self):
 		key = None
 		try:
-			key = self.query_win.getkey()
+			key = self.query_win.getch()
 		except:
 			pass
 		return key
+
+	def update_query(self, query):
+		self.help_win.clear()
+		self.help_win.addstr(query.get_help()) # todo get_help
+		self.help_win.refresh()
+		self.query_win.clear()
+		self.query_win.addstr(query.get_text()) 
+
 
 	def run(self, stdscr): 
 		query = Query(self.player_teams)
 		k = None
 		self.print_map(self.debug_win)
 		look = self.player_teams.list[0].look()
-		self.log_win.addstr(look)
+		self.log_win.addstr("%s\n" % look)
 		self.log_win.refresh()
+
+		self.help_win.clear()
+		self.help_win.addstr(query.get_help()) # todo get_help
+		self.help_win.refresh()
+
 		while True:
 # print possibilities like key:value
-
-
 			k = self.get_key()
-			if k == ' ':
+			if k == ord('Q'):
 				break
+			if k != None:
+				if k == 27:
+					query.init()
+					self.update_query(query)
+				k = chr(k)
+				if query.test_key(k) != QUERY_ERR:
+					self.update_query(query)
+					self.log_win.addstr(json.dumps(query.pos))
+					self.log_win.refresh()
+#update query display
 
 # i need a new window to show the help for the completion
 
@@ -328,8 +364,6 @@ class Main():
 #			self.debug_win.addstr(0, 0, datetime.datetime.now().strftime("%s"))
 #			self.debug_win.refresh()
 
-#m = Main()
-#curses.wrapper(m.run)
 
 def test_query(): 
 	q = Query(Teams(2, Map_()))
@@ -343,6 +377,8 @@ def test_query():
 	assert q.test_key('w') == QUERY_DONE
 	print(q.query)
 
-
-
-test_query()
+def run():
+	m = Main()
+	curses.wrapper(m.run)
+		
+run()
