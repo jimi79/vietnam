@@ -86,6 +86,16 @@ class Team():
 		self.state = STATE_DEFEND
 		self.dest_x = None
 		self.dest_y = None
+		self.last_action_time = None
+		self.time_busy = None
+		self.current_action = None
+		self.current_query = None 
+# if lastaction + busy < now, then we do somethg (move, stop working, and so on)
+# time busy = 1 minute if walking, n minutes if working, 10 sec if looking maybe
+# looking would be in 2 steps: i ask for a look, i get an answer later on
+# i mean, we give the output of looking once it's done
+
+
 	
 	def get_str(self, type_, previous_items):
 # get random string for each type.
@@ -148,7 +158,12 @@ class Team():
 
 		return ', '.join(items)
 
-	def act(self):
+	def action(self):
+# for now, i think any query will interrupt the current one, but it doesn't have to be
+# but maybe i need a list of stuff to do, with each a timing
+# even if it's not that much stuff to do
+# but that would be simplier: once a query is made, we just add it to the list of stuff to do
+
 		pass
 		# if moving, continue if possible
 # if same cell as ennemy, attack
@@ -181,6 +196,11 @@ class Teams():
 	def set_other_team(self, other_teams):
 		for t in self.list:
 			t.other_teams = other_teams
+
+	def action(self):
+		for t in self.list:
+			t.action()
+
 
 class Query():
 	def init(self):
