@@ -1,0 +1,18 @@
+add some random stuff in the map, like village, mountain, and so on
+shrink the map, add another team for the player
+add team name when they reply
+rename teams with alpha bravo etc (write a const with the nato)
+make moving action automatically renewed
+add 'stop' action to stop moving
+generate random ppl name for when they die?
+slow typing messages maybe
+timestamp all messages in the log
+once action is done, then add to the list 'defend'. end time would be None. -> nope, defend is the behavior without any action. actually, there is no defend
+how to make water super dangerous, but still crossable in case random doesn't make the map possible? -> not crossable. too bad if map is unsolvable
+if two teams on the same place, kill between 0 and 10% (or 0 and 1 if 10% represents less than 1) ppl on both teams
+if ennemies on cell, autogenrate command 'fight'
+no team merging: goals will be some place on the map where you can work, and the work load diminshes based on the number of workers. the command work would repeat itself, unless no more work to do, each 60sec (or more). each time work is done, we have the task load (a number) -= number of ppl in the team 
+in the log at start, describe all the teams with number of ppl in it. 
+after a fight (which happens when COMMAND = fight (autocreated once ennemies on cell) and ennemies = 0), reply 'xx lost'. meaning we need to store in the command itself the number of ppl alive, so we can, once fight ended, calculate the difference
+command move replies 'moving to %direction'
+
