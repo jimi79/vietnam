@@ -47,6 +47,8 @@ class ParseQueryToCommand():
 		query = query.query # to get the actual json thing
 		if query[1]['code'] == COMMAND_LOOK:
 			obj = CommandLook()
+		if query[1]['code'] == COMMAND_STOP:
+			obj = CommandStop()
 		if query[1]['code'] == COMMAND_MOVE:
 			obj = CommandMove()
 			obj.direction = query[2]['code']

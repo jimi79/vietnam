@@ -6,7 +6,6 @@ from reply import *
 
 nato = ['alpha', 'bravo', 'charly', 'delta', 'echo', 'fox-trot', 'hotel', 'india', 'juliet', 'kilo', 'lima', 'mike', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango', 'uniform', 'victor', 'wiskhey', 'x-ray', 'yankee', 'zulu']
 
-
 def log(text):
 	f = open("log", "a")
 	f.write("%s: %s\n" % (datetime.datetime.now().strftime("%H:%M:%S"), text))
@@ -153,9 +152,7 @@ class Team():
 							self.add_reply("we reached a border")
 					else:
 						raise Exception("instance of %s not handled" % str(command))
-				log(command)
 				if command.auto_repeat:
-					log("redo command %s" % str(command))
 					self.apply(command)
 
 	def apply_action(self, command):
@@ -184,13 +181,10 @@ class Team():
 			if isinstance(command, CommandFight):
 				self.commands = [] 
 			if isinstance(command, CommandStop):
-				log('i stopped')
 				self.commands = [] 
 			if isinstance(command, CommandAction): # fight included
-				log('A')
 				self.apply_action(command)
 			if isinstance(command, CommandLook):
-				log('B')
 				self.apply_look(command)
 
 		if DEBUG: 
