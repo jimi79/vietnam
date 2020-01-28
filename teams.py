@@ -39,7 +39,6 @@ class Teams():
 	def get_replies(self):
 		replies = []
 		for team in self.list:
-			for r in team.dump_replies():
-				replies.append("team %s: %s" % (team.nato, r))
+			replies = replies + team.dump_replies()
 		return replies
 

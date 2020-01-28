@@ -25,10 +25,10 @@ class Main():
 		self.map = Map_()
 		self.map.randomize()
 		self.query_win = curses.newwin(1, 60, 0, 0)
-		self.log_win = curses.newwin(10, 60, 2, 0)
+		self.log_win = curses.newwin(10, 120, 2, 0)
 		self.log_win.scrollok(True)
 		self.debug_win = curses.newwin(11, 12, 15, 0) # display the map, cheat
-		self.help_win = curses.newwin(10, 30, 0, 62)
+		self.help_win = curses.newwin(10, 30, 0, 125)
 		self.player_teams = Teams(COUNT_PLAYER_TEAMS, self.map)
 		self.npc_teams = Teams(COUNT_NPC_TEAMS, self.map) 
 		self.player_teams.set_other_team(self.npc_teams)
@@ -73,8 +73,11 @@ class Main():
 		self.query_win.addstr(query.get_text()) 
 		self.help_win.refresh()
 
-	def add_log(self, query):
-		self.log_win.addstr("%s: %s\n" % (self.get_time(), query))
+	def add_log(self, text, title = None):
+		if title == None:
+			self.log_win.addstr("  %s\n%s\n" % (self.get_time(), text))
+		else:
+			self.log_win.addstr("  %s, %s\n%s\n" % (self.get_time(), title, text))
 		self.log_win.refresh()
 
 	def get_time(self):
@@ -113,4 +116,4 @@ class Main():
 					self.update_query(query)
 			self.tick()
 			for reply in self.get_replies():
-				self.add_log(reply)
+				self.add_log(reply.text, reply.team)

@@ -20,12 +20,12 @@ QUERY_DONE = 2 # query complete, could be executed
 QUERY_ERR = 1 # key not authorized
 QUERY_NEXT = 0 # query not complete
 
-SIZE = 10
+SIZE = 5
 
 COUNT_PLAYER_TEAMS = 2
-COUNT_NPC_TEAMS = 3
+COUNT_NPC_TEAMS = 0
 
 SPEED_FACTOR = 1 # 1 normal, 2 faster
-SPEED_FACTOR = 10 # 1 normal, 2 faster
+SPEED_FACTOR = 100 # 1 normal, 2 faster
 
 DEBUG = True # true or false, but has to exists

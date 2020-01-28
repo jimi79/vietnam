@@ -2,8 +2,14 @@ import datetime
 import copy
 from tools import *
 from command import *
+from reply import *
 
 nato = ['alpha', 'bravo', 'charly', 'delta', 'echo', 'fox-trot', 'hotel', 'india', 'juliet', 'kilo', 'lima', 'mike', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango', 'uniform', 'victor', 'wiskhey', 'x-ray', 'yankee', 'zulu']
+
+
+def log(text):
+	f = open("log", "a")
+	f.write("%s: %s\n" % (datetime.datetime.now().strftime("%H:%M:%S"), text))
 
 class Team():
 	def __init__(self, id_, count, map_): 
@@ -12,15 +18,19 @@ class Team():
 		self.map = map_
 		self.other_teams = None 
 		self.our_teams = None 
-		self.actions = [] # actions to do, [0] is the one being done
-		self.nato = nato[id_]
-		self.letter = nato[id_][0]
+		self.commands = [] # actions to do, [0] is the one being done
+		self.nato = nato.pop(0)
+		self.letter = self.nato[0]
 		self.replies = [] # list of messages returned by the team
+		self.npc = False
 		while True:
 			self.y = rnd()
 			self.x = rnd() # they are parahuted somewhere. could be defined by mission
 			if self.map.geo[self.y][self.x] != WATER:
 				break
+	
+	def get_killed(self):
+		return count == 0
 	
 	def get_pos_from_direction(self, direction):
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
@@ -69,22 +79,15 @@ class Team():
 			txt = "%s: %s" % (s_direction, s)
 		return txt
 
-	def get_ennemies_at_pos(self, direction): 
-		x, y = self.get_pos_from_direction(direction)
-		teams = [team for team in self.other_teams if team.x == x and team.y == y]
-		print(teams) 
+	def get_ennemies_at_pos(self, direction = "l"): 
+		y, x = self.get_pos_from_direction(direction)
+		teams = [team for team in self.other_teams.list if team.x == x and team.y == y and team.count > 0]
+		return teams
 	
 	def look(self): 
-# save the map in some file to check, i doubt the display now
-# add some details in that log
-# TODO !!!!!!!!!!!
-# rules about seeing from a forest or not still yet to work on
-# actually wrong: we can see a forest, but an ennemie in a forest, we can't tell
-
 		items = [] 
 		for d in ["l", "n", "ne", "e", "se", "s", "sw", "w", "nw"]:
 			item = self.get_item_at_pos(d)
-			#item2 = self.get_ennemies_at_pos(d) # sum of bad guys
 			if item != None:
 				items.append(item) 
 		if len(items) == 0:
@@ -107,41 +110,99 @@ class Team():
 		self.x = x
 		return True
 
-	def tick(self):
-		if len(self.actions) > 0:
-			action = self.actions[0]
-			if action.when <= datetime.datetime.now():
-				self.actions.pop(0) # not if moving... but i should regenerate a new order in that case, or change the time of it
-				if isinstance(action, CommandLook):
-					self.add_reply(self.look())
-				if isinstance(action, CommandMove):
-					if not self.move(action.direction):
-						self.add_reply("we reached a border")
+	def pre_command_process(self):
+		if len(self.get_ennemies_at_pos()) > 0: 
+			if not self.fighting():
+				self.apply(CommandFight())
 
-	def apply(self, action):
+	def fight(self):
+		killed = random.randrange(0, int(self.count * 1.5))
+		teams = self.get_ennemies_at_pos()
+		#log("%s: we killed %d peoples, we have %d peoples left" % (self.nato, killed, self.count))
+		for team in teams:
+			if killed == 0:
+				break 
+			k = min(team.count, killed)
+			team.count = team.count - k
+			killed = killed - k 
+	
+	def fighting(self):
+		r = False
+		if len(self.commands) > 0:
+			r = isinstance(self.commands[0], CommandFight)
+		return r
 
-#TODO: if fighting, then refuse any action command, and add a message
+	def tick(self): 
+		if self.count <= 0:
+			return
+		self.pre_command_process() 
+	
+		if len(self.commands) > 0:
+			command = self.commands[0]
+			if command.when <= datetime.datetime.now():
+				self.commands.pop(0) 
+				if isinstance(command, CommandFight):
+					self.fight()
+# no need to rewrite the command, bc it pops up as long as there are ennemies anyway
+				else: 
+					if isinstance(command, CommandLook):
+						self.add_reply(self.look())
+					elif isinstance(command, CommandMove):
+						if not self.move(command.direction):
+							command.auto_repeat = False
+							self.add_reply("we reached a border")
+					else:
+						raise Exception("instance of %s not handled" % str(command))
+				log(command)
+				if command.auto_repeat:
+					log("redo command %s" % str(command))
+					self.apply(command)
 
-		if isinstance(action, CommandAction): 
-# we remove all pending actions except looking around
-			self.actions = [action for action in self.actions if not(isinstance(action, CommandAction))] 
-			if len(self.actions) > 0:
-				t = max([action.when for action in self.actions])
-			else:
-				t = datetime.datetime.now() 
-			action.when = t + datetime.timedelta(seconds = action.duration)
-			self.actions.append(action)
-		if isinstance(action, CommandLook):
-			if len([action for action in self.actions if (isinstance(action, CommandLook))]) == 0:
+	def apply_action(self, command):
+# we remove all pending command except looking around
+		self.commands = [command for command in self.commands if not(isinstance(command, CommandAction))] 
+		if len(self.commands) > 0:
+			t = max([command.when for command in self.commands])
+		else:
+			t = datetime.datetime.now() 
+		command.when = t + datetime.timedelta(seconds = command.duration)
+		self.commands.append(command)
+
+	def apply_look(self, command):
+		if len([command for command in self.commands if (isinstance(commancommand, CommandLook))]) == 0:
 # we shift what we had
-				for a in self.actions:
-					a.when = a.when + datetime.timedelta(seconds=action.duration)
-# we add the new action
-				self.actions.insert(0, action) 
-				action.when = datetime.datetime.now() + datetime.timedelta(seconds = action.duration)
+			for a in self.commands:
+				a.when = a.when + datetime.timedelta(seconds=command.duration)
+# we add the new command
+			self.commands.insert(0, command) 
+			command.when = datetime.datetime.now() + datetime.timedelta(seconds = command.duration)
+
+	def apply(self, command): 
+# if a fight is requested, everythg else is cancel
+# if a fight is going on, then we ignore everythg else (included the command to fight)
+		if not(self.fighting()): 
+			if isinstance(command, CommandFight):
+				self.commands = [] 
+			if isinstance(command, CommandStop):
+				log('i stopped')
+				self.commands = [] 
+			if isinstance(command, CommandAction): # fight included
+				log('A')
+				self.apply_action(command)
+			if isinstance(command, CommandLook):
+				log('B')
+				self.apply_look(command)
+
+		if DEBUG: 
+			f = open("log_%s" % self.nato, "w")
+			for command in self.commands:
+				f.write("%s: %s\n" % (command.when.strftime("%H:%M:%S"), str(command)))
+
+
 
 	def add_reply(self, value):
-		self.replies.append(value)
+		reply = Reply(value, self.nato)
+		self.replies.append(reply)
 	
 	def dump_replies(self):
 		if self.count > 0:

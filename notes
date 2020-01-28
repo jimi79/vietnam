@@ -1,9 +1,5 @@
-add some random stuff in the map, like village, mountain, and so on
-shrink the map, add another team for the player
-add team name when they reply
-rename teams with alpha bravo etc (write a const with the nato)
-make moving action automatically renewed
-add 'stop' action to stop moving
+add 'stop' action to stop moving (also fired when hitting a border)
+display a message at the end of a fight (if alive)
 generate random ppl name for when they die?
 slow typing messages maybe
 timestamp all messages in the log
