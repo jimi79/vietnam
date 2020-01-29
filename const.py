@@ -11,6 +11,7 @@ COMMAND_LOOK = "LOOK"
 COMMAND_MOVE = "MOVE"
 COMMAND_STOP = "STOP"
 COMMAND_WORK = "WORK"
+COMMAND_STATUS = "STATUS"
 
 QUERY_DONE = 2 # query complete, could be executed
 QUERY_ERR = 1 # key not authorized
@@ -29,3 +30,8 @@ DEBUG = True # true or false, but has to exists
 RATIO_FOREST = 0.2
 RATIO_WATER = 0.2
 RATIO_WONDER = 0.2
+
+#debug
+
+SIZE = 5
+RATIO_WATER = 0

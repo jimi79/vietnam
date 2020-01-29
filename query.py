@@ -34,6 +34,7 @@ class Query():
 				'values': 
 					{
 						'l': {'text': 'look', 'code': COMMAND_LOOK},
+						't': {'text': 'status', 'code': COMMAND_STATUS},
 						's': {'text': 'stop', 'code': COMMAND_STOP},
 						#'w': {'text': 'work', 'code': COMMAND_WORK} #only if available, i need the map here, or some goal object, not sure. i think the map though, which will have a goal object
 						'm': {'text': 'move', 'code': COMMAND_MOVE}
@@ -42,6 +43,8 @@ class Query():
 
 		if len(self.query) == 2:
 			if self.query[-1]['code'] == COMMAND_LOOK:
+				self.end = True
+			if self.query[-1]['code'] == COMMAND_STATUS:
 				self.end = True
 			if self.query[-1]['code'] == COMMAND_STOP:
 				self.end = True 

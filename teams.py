@@ -5,10 +5,15 @@ import json
 
 
 class Teams():
-	def __init__(self, count, map_):
+	def __init__(self, count, map_, npc):
 		self.list = []
 		for i in range(0, count):
-			t = Team(i, random.randrange(5, 15), map_)
+			members = random.randrange(5, 15)
+			if DEBUG:
+				if not npc:
+					members = 100
+			t = Team(i, members, map_) 
+			t.npc = npc 
 			t.our_teams = self
 			self.list.append(t)
 

@@ -7,10 +7,19 @@ class Command():
 		self.auto_repeat = False
 		self.duration = None
 
-class CommandLook(Command):
+class CommandQuery(Command): # we ask a question, that interrupts what is going on
+	def __init__(self):
+		super().__init__()
+
+class CommandLook(CommandQuery):
 	def __init__(self):
 		super().__init__()
 		self.duration = 10 / SPEED_FACTOR
+
+class CommandStatus(CommandQuery):
+	def __init__(self):
+		super().__init__()
+		self.duration = 5 / SPEED_FACTOR 
 
 class CommandAction(Command):
 	def __init__(self):
@@ -35,6 +44,8 @@ class CommandFight(CommandAction):
 	def __init__(self):
 		super().__init__()
 		self.duration = 30 / SPEED_FACTOR
+		self.auto_repeat = True
+		self.killed = 0
 
 class CommandStop(Command):
 	def __init__(self):
@@ -47,6 +58,8 @@ class ParseQueryToCommand():
 		query = query.query # to get the actual json thing
 		if query[1]['code'] == COMMAND_LOOK:
 			obj = CommandLook()
+		if query[1]['code'] == COMMAND_STATUS:
+			obj = CommandStatus()
 		if query[1]['code'] == COMMAND_STOP:
 			obj = CommandStop()
 		if query[1]['code'] == COMMAND_MOVE:

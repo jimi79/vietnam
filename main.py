@@ -29,8 +29,8 @@ class Main():
 		self.log_win = curses.newwin(10, 80, 2, 0)
 		self.debug_win = curses.newwin(11, 12, 15, 0) # display the map, cheat
 		self.log_win.scrollok(True)
-		self.player_teams = Teams(COUNT_PLAYER_TEAMS, self.map)
-		self.npc_teams = Teams(COUNT_NPC_TEAMS, self.map) 
+		self.player_teams = Teams(count = COUNT_PLAYER_TEAMS, map_ = self.map, npc = False)
+		self.npc_teams = Teams(count = COUNT_NPC_TEAMS, map_ = self.map, npc = True) 
 		self.player_teams.set_other_team(self.npc_teams)
 		self.npc_teams.set_other_team(self.player_teams)
 		self.goals = Goals() # a list of places, and place on the map the first one to reach 
@@ -81,16 +81,14 @@ class Main():
 			if len(word) + x > maxx:
 				win.addstr("\n")
 			win.addstr("%s " % word)
-		self.log_win.refresh()
-			
+		self.log_win.refresh() 
 
 	def add_log(self, text, title = None):
 		if title == None:
 			s = "  %s\n%s\n" % (self.get_time(), text)
 		else:
 			s = "  %s, %s\n%s\n" % (self.get_time(), title, text)
-		self.add_wrap(self.log_win, s)
-
+		self.add_wrap(self.log_win, s) 
 
 	def get_time(self):
 		d = (datetime.datetime.now() - self.initial_time).seconds
@@ -107,6 +105,12 @@ class Main():
 		self.help_win.refresh()
 		k = None
 		self.initial_time = datetime.datetime.now()
+
+#		for team in self.player_teams.list:
+#			self.add_log("Team %s: %d pp" % (team.nato, team.count))
+#		for team in self.npc_teams.list:
+#			self.add_log("Team %s: %d pp" % (team.nato, team.count))
+
 		while True:
 			if DEBUG: 
 				self.print_map(self.debug_win)

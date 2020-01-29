@@ -28,9 +28,6 @@ class Team():
 			if self.map.geo[self.y][self.x] != WATER:
 				break
 	
-	def get_killed(self):
-		return count == 0
-	
 	def get_pos_from_direction(self, direction):
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
 		x = self.x + (1 if "e" in direction else -1 if "w" in direction else 0)	
@@ -97,14 +94,21 @@ class Team():
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
 		x = self.x + (1 if "e" in direction else -1 if "w" in direction else 0)	
 		if y >= SIZE:
+			self.add_reply("we reached a border")
 			return False
 		if y < 0:
+			self.add_reply("we reached a border")
 			return False
 		if x >= SIZE:
+			self.add_reply("we reached a border")
 			return False
 		if x < 0:
+			self.add_reply("we reached a border")
 			return False
 # if end up on water, then also refuse
+		if self.map.geo[y][x] == WATER:
+			self.add_reply("we can't go pass that water")
+			return False
 		self.y = y
 		self.x = x
 		return True
@@ -114,22 +118,28 @@ class Team():
 			if not self.fighting():
 				self.apply(CommandFight())
 
-	def fight(self):
+	def fight(self, command):
 		killed = random.randrange(0, int(self.count * 2))
 		teams = self.get_ennemies_at_pos()
-		#log("%s: we killed %d peoples, we have %d peoples left" % (self.nato, killed, self.count))
+		#log("%s: we killed %d peoples, we have %d peoples left" % (self.nato, killed, self.count)) 
+		actually_killed = 0
 		for team in teams:
 			if killed == 0:
 				break 
 			k = min(team.count, killed)
 			team.count = team.count - k
-			killed = killed - k 
+			killed = killed - k
+			actually_killed = actually_killed + k
+		command.killed = command.killed + actually_killed
 	
 	def fighting(self):
 		r = False
 		if len(self.commands) > 0:
 			r = isinstance(self.commands[0], CommandFight)
 		return r
+
+	def status(self):
+		return "we have %d people left" % self.count
 
 	def tick(self): 
 		if self.count <= 0:
@@ -141,15 +151,19 @@ class Team():
 			if command.when <= datetime.datetime.now():
 				self.commands.pop(0) 
 				if isinstance(command, CommandFight):
-					self.fight()
+					self.fight(command)
+					if len(self.get_ennemies_at_pos()) == 0:
+						command.auto_repeat = False
+						self.add_reply("we killed %d peoples" % (command.killed))
 # no need to rewrite the command, bc it pops up as long as there are ennemies anyway
 				else: 
 					if isinstance(command, CommandLook):
 						self.add_reply(self.look())
+					elif isinstance(command, CommandStatus): 
+						self.add_reply(self.status())
 					elif isinstance(command, CommandMove):
 						if not self.move(command.direction):
 							command.auto_repeat = False
-							self.add_reply("we reached a border")
 					else:
 						raise Exception("instance of %s not handled" % str(command))
 				if command.auto_repeat:
@@ -165,14 +179,13 @@ class Team():
 		command.when = t + datetime.timedelta(seconds = command.duration)
 		self.commands.append(command)
 
-	def apply_look(self, command):
-		if len([command for command in self.commands if (isinstance(command, CommandLook))]) == 0:
+	def apply_query(self, command):
 # we shift what we had
-			for a in self.commands:
-				a.when = a.when + datetime.timedelta(seconds=command.duration)
+		for a in self.commands:
+			a.when = a.when + datetime.timedelta(seconds=command.duration)
 # we add the new command
-			self.commands.insert(0, command) 
-			command.when = datetime.datetime.now() + datetime.timedelta(seconds = command.duration)
+		self.commands.insert(0, command) 
+		command.when = datetime.datetime.now() + datetime.timedelta(seconds = command.duration)
 
 	def apply(self, command): 
 # if a fight is requested, everythg else is cancel
@@ -184,19 +197,13 @@ class Team():
 				self.commands = [] 
 			if isinstance(command, CommandAction): # fight included
 				self.apply_action(command)
-			if isinstance(command, CommandLook):
-				self.apply_look(command)
-
-		if DEBUG: 
-			f = open("log_%s" % self.nato, "w")
-			for command in self.commands:
-				f.write("%s: %s\n" % (command.when.strftime("%H:%M:%S"), str(command)))
-
-
+			if isinstance(command, CommandQuery):
+				self.apply_query(command)
 
 	def add_reply(self, value):
-		reply = Reply(value, self.nato)
-		self.replies.append(reply)
+		if not self.npc:
+			reply = Reply(value, self.nato)
+			self.replies.append(reply)
 	
 	def dump_replies(self):
 		if self.count > 0:
