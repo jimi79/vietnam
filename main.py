@@ -23,12 +23,12 @@ class Main():
 	def __init__(self):
 		self.init_curses()
 		self.map = Map_()
-		self.map.place()
-		self.query_win = curses.newwin(1, 60, 0, 0)
-		self.log_win = curses.newwin(10, 120, 2, 0)
-		self.log_win.scrollok(True)
+		self.map.place(ratio_forest = RATIO_FOREST, ratio_wonder = RATIO_WONDER, ratio_water = RATIO_WATER)
+		self.query_win = curses.newwin(1, 40, 0, 0)
+		self.help_win = curses.newwin(10, 20, 0, 90)
+		self.log_win = curses.newwin(10, 80, 2, 0)
 		self.debug_win = curses.newwin(11, 12, 15, 0) # display the map, cheat
-		self.help_win = curses.newwin(10, 30, 0, 125)
+		self.log_win.scrollok(True)
 		self.player_teams = Teams(COUNT_PLAYER_TEAMS, self.map)
 		self.npc_teams = Teams(COUNT_NPC_TEAMS, self.map) 
 		self.player_teams.set_other_team(self.npc_teams)
@@ -73,12 +73,24 @@ class Main():
 		self.query_win.addstr(query.get_text()) 
 		self.help_win.refresh()
 
+	def add_wrap(self, win, text):
+		words = text.split(" ")
+		maxy, maxx = win.getmaxyx()
+		for word in words:
+			y, x = win.getyx()
+			if len(word) + x > maxx:
+				win.addstr("\n")
+			win.addstr("%s " % word)
+		self.log_win.refresh()
+			
+
 	def add_log(self, text, title = None):
 		if title == None:
-			self.log_win.addstr("  %s\n%s\n" % (self.get_time(), text))
+			s = "  %s\n%s\n" % (self.get_time(), text)
 		else:
-			self.log_win.addstr("  %s, %s\n%s\n" % (self.get_time(), title, text))
-		self.log_win.refresh()
+			s = "  %s, %s\n%s\n" % (self.get_time(), title, text)
+		self.add_wrap(self.log_win, s)
+
 
 	def get_time(self):
 		d = (datetime.datetime.now() - self.initial_time).seconds

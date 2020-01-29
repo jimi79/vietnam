@@ -25,3 +25,7 @@ SPEED_FACTOR = 1 # 1 normal, 2 faster
 SPEED_FACTOR = 100 # 1 normal, 2 faster
 
 DEBUG = True # true or false, but has to exists
+
+RATIO_FOREST = 0.2
+RATIO_WATER = 0.2
+RATIO_WONDER = 0.2

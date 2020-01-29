@@ -1,21 +1,18 @@
+use a cli. tab or incorrect key could display help (on one line), and status would be displayed on the same place.
+	that being said, if there is a reply, we remove the current line, and we redisplay the current query being typed
+	or just display curent query, being ("type" + possibilities), then command (possibilities). if message iuncoming, remove current line (it's actually write the current line then clear from cursor to end of the line)
+	well that will be tricky to matter what, i reckon
+	write the map in a log file, that i will cat with watch
+	keep ncurses bc i need halfdelay, but just use the main win
+add a status command
 display a message at the end of a fight (if alive)
+create a new command 'move around', that will get all the cells around some team, and check if they are usable (not water, actualy place_for_npc'). and every 30 minutes or whatever the delay, if we are in original_x original_y, then move to a random place from the list, if not move to x y (so it's moving around approximately)
 in the log at start, describe all the teams with number of ppl in it. or maybe in status.
 change map design so that ppl don't pop on water, water can't be in the forest, etc:
-	maintain a list of free geo stuff
-	list of water stuff (pop from list of free-plain stuff)
-	list of forest stuff (can't be on water)
-	water and forest count are %age based on the total surface. if no place left, we abandon.
-	same for location of things
-	and use the forest + plain stuff to list free location for ppl (bad and good guy can pop on each other)
-	and same for workplace
-
-	for water stuff, we could add an action 'build a bridge'... but i don't like it. as for water, we could have multiples designs to make sure there is a path
-	the most obvious is water only on diagonals, but that won't look good
-	other is to have a thing like
-	WWWW WWW
-
-	WWWWWW W
-	meaning one line on two only for water, and on each line, one cell can't have water in it.
+	XXX XX
+	
+	X XXXX
+	it's a matter of building the place_for_Water in that way
 
 
 slow typing messages maybe

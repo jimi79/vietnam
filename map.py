@@ -13,22 +13,29 @@ class Map_():
 				a.append((y, x))
 		return a
 
-	def init_for_categ(self, categ):
-		self.place_for[categ] = self.get_all_cells()
+	def get_all_water_cells(self):
+		a = []
+		for y in range(0, SIZE, 2):
+			b = []
+			for x in range(0, SIZE):
+				b.append((y, x))
+			random.shuffle(b)
+			b.pop()
+			a = a + b
+		return a
 		
-	def __init__(self):
-
+	def __init__(self): 
 		self.place_for = {}
 		self.geo = [[None for i in range(0, SIZE)] for y in range(0, SIZE)]
 		self.wonder = [[None for i in range(0, SIZE)] for y in range(0, SIZE)]
-		self.init_for_categ('forest')
-		self.init_for_categ('plain')
-		self.init_for_categ('water')
-		self.init_for_categ('wonder_on_ground')
+		self.place_for['forest'] = self.get_all_cells()
+		self.place_for['plain'] = self.get_all_cells()
+		self.place_for['water'] = self.get_all_water_cells()
+		self.place_for['wonder_on_ground'] = self.get_all_cells()
 		self.place_for['wonder_on_water'] = []
-		self.init_for_categ('work')
-		self.init_for_categ('player')
-		self.init_for_categ('npc')
+		self.place_for['work'] = self.get_all_cells()
+		self.place_for['player'] =self. get_all_cells()
+		self.place_for['npc'] = self.get_all_cells()
 		self.placed = {}
 		self.placed['water'] = []
 		self.placed['forest'] = []
@@ -55,7 +62,8 @@ class Map_():
 		while count > 0 and len(self.place_for['forest']) > 0:
 			y, x = self.place_for['forest'][0]
 			self.geo[y][x] = FOREST
-			self.place_for['water'].remove((y,x))
+			if (y,x) in self.place_for['water']:
+				self.place_for['water'].remove((y,x))
 			self.place_for['forest'].remove((y,x))
 			self.place_for['wonder_on_ground'].remove((y,x))
 			count = count - 1
