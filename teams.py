@@ -8,6 +8,8 @@ class Teams():
 	def __init__(self, count, map_, npc, goals):
 		self.list = []
 		for i in range(0, count):
+			if npc:
+				log('adding team %d' % i)
 			members = random.randrange(5, 15)
 			if DEBUG:
 				if not npc:

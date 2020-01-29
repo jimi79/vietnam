@@ -141,4 +141,4 @@ class Map_():
 
 	def get_team_npc_location(self):
 		random.shuffle(self.place_for['npc'])
-		return self.place_for['player'][0] 
+		return self.place_for['npc'][0] 
