@@ -33,7 +33,7 @@ class Map_():
 		self.place_for['water'] = self.get_all_water_cells()
 		self.place_for['wonder_on_ground'] = self.get_all_cells()
 		self.place_for['wonder_on_water'] = []
-		self.place_for['work'] = self.get_all_cells()
+		self.place_for['goal'] = self.get_all_cells()
 		self.place_for['player'] =self. get_all_cells()
 		self.place_for['npc'] = self.get_all_cells()
 		self.placed = {}
@@ -82,7 +82,7 @@ class Map_():
 			self.place_for['forest'].remove((y,x))
 			self.place_for['player'].remove((y,x))
 			self.place_for['npc'].remove((y,x))
-			self.place_for['work'].remove((y,x))
+			self.place_for['goal'].remove((y,x))
 			self.place_for['wonder_on_water'].append((y, x))
 			count  = count - 1
 			print("placing water on %d %d" % (y, x))
@@ -130,3 +130,15 @@ class Map_():
 		self.place_water(ratio_water)
 		self.place_forest(ratio_forest)
 		self.place_wonder(ratio_wonder)
+
+	def get_goal_location(self):
+		random.shuffle(self.place_for['goal'])
+		return self.place_for['goal'].pop()
+
+	def get_team_player_location(self):
+		random.shuffle(self.place_for['player'])
+		return self.place_for['player'][0]
+
+	def get_team_npc_location(self):
+		random.shuffle(self.place_for['npc'])
+		return self.place_for['player'][0] 

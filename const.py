@@ -23,9 +23,8 @@ COUNT_PLAYER_TEAMS = 2
 COUNT_NPC_TEAMS = 3
 
 SPEED_FACTOR = 1 # 1 normal, 2 faster
-SPEED_FACTOR = 100 # 1 normal, 2 faster
 
-DEBUG = True # true or false, but has to exists
+DEBUG = False
 
 RATIO_FOREST = 0.2
 RATIO_WATER = 0.2
@@ -33,5 +32,9 @@ RATIO_WONDER = 0.2
 
 #debug
 
-SIZE = 5
+RATIO_FOREST = 1
+SIZE = 3
 RATIO_WATER = 0
+SPEED_FACTOR = 50 # 1 normal, 2 faster
+DEBUG = True
+COUNT_NPC_TEAMS = 5

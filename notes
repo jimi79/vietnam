@@ -19,3 +19,5 @@ command move replies 'moving to %direction'
 
 https://stackoverflow.com/questions/11180845/is-there-a-library-to-convert-integer-to-first-second-third to display "i see our first objective, second, etc"
 
+
+display cursor on the query position, so we know what we are typing

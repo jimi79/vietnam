@@ -36,7 +36,7 @@ class Query():
 						'l': {'text': 'look', 'code': COMMAND_LOOK},
 						't': {'text': 'status', 'code': COMMAND_STATUS},
 						's': {'text': 'stop', 'code': COMMAND_STOP},
-						#'w': {'text': 'work', 'code': COMMAND_WORK} #only if available, i need the map here, or some goal object, not sure. i think the map though, which will have a goal object
+						'w': {'text': 'work', 'code': COMMAND_WORK},
 						'm': {'text': 'move', 'code': COMMAND_MOVE}
 					}
 				}

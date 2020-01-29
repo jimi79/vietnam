@@ -1,17 +1,16 @@
 import datetime
 import copy
+import inflect
+import math
 from tools import *
 from command import *
 from reply import *
+from goal import *
 
 nato = ['alpha', 'bravo', 'charly', 'delta', 'echo', 'fox-trot', 'hotel', 'india', 'juliet', 'kilo', 'lima', 'mike', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango', 'uniform', 'victor', 'wiskhey', 'x-ray', 'yankee', 'zulu']
 
-def log(text):
-	f = open("log", "a")
-	f.write("%s: %s\n" % (datetime.datetime.now().strftime("%H:%M:%S"), text))
-
 class Team():
-	def __init__(self, id_, count, map_): 
+	def __init__(self, id_, count, map_, goals, y, x): 
 		self.count = count
 		self.id = id_
 		self.map = map_
@@ -22,11 +21,10 @@ class Team():
 		self.letter = self.nato[0]
 		self.replies = [] # list of messages returned by the team
 		self.npc = False
-		while True:
-			self.y = rnd()
-			self.x = rnd() # they are parahuted somewhere. could be defined by mission
-			if self.map.geo[self.y][self.x] != WATER:
-				break
+		self.goals = goals
+		self.y = y
+		self.x = x
+		self.win = False
 	
 	def get_pos_from_direction(self, direction):
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
@@ -64,6 +62,10 @@ class Team():
 
 			if self.map.wonder[y][x] != None:
 				items.append(self.map.wonder[y][x])
+
+			for goal in self.goals.list:
+				if goal.x == x and goal.y == y:
+					items.append("goal %s" % goal.name)
 		
 		if len(items) == 0:
 			txt = None
@@ -138,8 +140,78 @@ class Team():
 			r = isinstance(self.commands[0], CommandFight)
 		return r
 
+	def get_goal_list(self):
+		l = []
+		for goal in self.goals.list:
+			#if goal.team_letter_ids_required == None or self.letter in goal.team_letter_ids_required:
+			l.append(goal)
+		s = []
+		a = 1
+		p = inflect.engine()
+		for goal in l:
+			number = p.number_to_words(p.ordinal(a))
+			dist = round(self.get_distance(goal.y, goal.x))
+			angle, s_angle = self.get_direction(goal.y, goal.x)
+			s.append("%s goal: %s, direction: %s, distance: %0.0f hours." % (number, goal.name, s_angle, dist))
+			a = a + 1
+		return " ".join(s)
+
+	def is_here(self, location):
+		y, x = location
+		return y == self.y and x == self.x 
+
+	def get_direction(self, desty, destx):
+		y = self.y
+		x = self.x
+		angle = math.degrees(math.atan2(desty - y, destx - x))
+		sd = ["e", "se", "s", "sw", "w", "nw", "n", "ne"] 
+		return angle, sd[round(angle / 45) % 8]
+
+	def get_distance(self, desty, destx):
+		y = self.y
+		x = self.x
+		return math.sqrt(math.pow(abs(desty - y), 2) + math.pow(abs(destx - x), 2))
+
+	def get_goals(self):
+		return self.get_goal_list()
+
 	def status(self):
-		return "we have %d people left" % self.count
+		s = "we have %d people left." % self.count
+		s = s + " %s." % ("we are a support team" if self.letter != 'a' else "we are the working team")
+		return s 
+
+	def get_non_end_goal_list(self):
+		goals = [goal for goal in self.goals.list if not goal.done and not(isinstance(goal, EndGoal))]
+		return goals
+
+	def get_goal_at_pos(self):
+		goals = [goal for goal in self.goals.list if goal.x == self.x and goal.y == self.y]
+		if len(goals) > 0:
+			return goals[0]
+		else:
+			return None
+	
+	def ask_work(self):
+		goal = self.get_goal_at_pos()
+		if goal == None:
+			self.add_reply('no task to do here')
+		else:
+			if goal.done:
+				self.add_reply('that task is already completed')
+			else:
+				if isinstance(goal, EndGoal):
+					if len(self.get_non_end_goal_list()) > 0:
+						self.add_reply('we still have tasks to do')
+						return
+				self.apply(CommandDoWork(goal))
+				
+	def do_work(self, command):
+		if isinstance(command.goal, EndGoal):
+			self.win = True
+			self.add_reply("we exited, bye")
+		else:
+			command.goal.done = True 
+			self.add_reply("%s is done" % command.goal.name)
 
 	def tick(self): 
 		if self.count <= 0:
@@ -154,7 +226,7 @@ class Team():
 					self.fight(command)
 					if len(self.get_ennemies_at_pos()) == 0:
 						command.auto_repeat = False
-						self.add_reply("we killed %d peoples" % (command.killed))
+						self.add_reply("we just had a fight, we killed %d peoples" % (command.killed))
 # no need to rewrite the command, bc it pops up as long as there are ennemies anyway
 				else: 
 					if isinstance(command, CommandLook):
@@ -164,6 +236,10 @@ class Team():
 					elif isinstance(command, CommandMove):
 						if not self.move(command.direction):
 							command.auto_repeat = False
+					elif isinstance(command, CommandAskWork):
+						self.ask_work()
+					elif isinstance(command, CommandDoWork):
+						self.do_work(command)
 					else:
 						raise Exception("instance of %s not handled" % str(command))
 				if command.auto_repeat:
@@ -190,15 +266,19 @@ class Team():
 	def apply(self, command): 
 # if a fight is requested, everythg else is cancel
 # if a fight is going on, then we ignore everythg else (included the command to fight)
-		if not(self.fighting()): 
-			if isinstance(command, CommandFight):
-				self.commands = [] 
-			if isinstance(command, CommandStop):
-				self.commands = [] 
-			if isinstance(command, CommandAction): # fight included
-				self.apply_action(command)
-			if isinstance(command, CommandQuery):
-				self.apply_query(command)
+		if (self.fighting()):
+			return
+		if (self.win):
+			return 
+		log(str(command))
+		if isinstance(command, CommandFight):
+			self.commands = [] 
+		if isinstance(command, CommandStop):
+			self.commands = [] 
+		if isinstance(command, CommandAction): # fight included
+			self.apply_action(command)
+		if isinstance(command, CommandQuery):
+			self.apply_query(command)
 
 	def add_reply(self, value):
 		if not self.npc:

@@ -1,58 +1,56 @@
 from const import *
 
 class Command():
-	def __init__(self):
+	def __init__(self, duration):
 		self.id = None
 		self.when = None
 		self.auto_repeat = False
-		self.duration = None
+		if duration != None:
+			self.duration = duration / SPEED_FACTOR
+		else:
+			self.duration = None
 
 class CommandQuery(Command): # we ask a question, that interrupts what is going on
-	def __init__(self):
-		super().__init__()
+	def __init__(self, duration):
+		super().__init__(duration)
 
 class CommandLook(CommandQuery):
 	def __init__(self):
-		super().__init__()
-		self.duration = 10 / SPEED_FACTOR
+		super().__init__(duration = 10)
 
 class CommandStatus(CommandQuery):
 	def __init__(self):
-		super().__init__()
-		self.duration = 5 / SPEED_FACTOR 
+		super().__init__(duration = 5)
 
 class CommandAction(Command):
-	def __init__(self):
-		super().__init__()
+	def __init__(self, duration):
+		super().__init__(duration)
 
 class CommandMove(CommandAction):
 	def __init__(self):
-		super().__init__()
+		super().__init__(60)
 		self.direction = None
-		self.duration = 60 / SPEED_FACTOR # if in an angle, do that times sqr(2)...
 		self.auto_repeat = True
 
-class CommandWork(CommandAction):
+class CommandAskWork(CommandAction): # interrupt, even if we just asks
 	def __init__(self):
-		super().__init__()
-		self.duration = None # determined by the map, no idea how i will do that. 
-# i think team knows map, and so can say the duration of a given work
-# but a 'work' object should be better
-# we'll see....
+		super().__init__(duration = 5)
+
+class CommandDoWork(CommandAction):
+	def __init__(self, goal):
+		super().__init__(goal.duration)
+		self.goal = goal
 
 class CommandFight(CommandAction):
 	def __init__(self):
-		super().__init__()
-		self.duration = 30 / SPEED_FACTOR
+		super().__init__(30)
 		self.auto_repeat = True
 		self.killed = 0
 
 class CommandStop(Command):
 	def __init__(self):
-		super().__init__()
-		self.duration = 10 / SPEED_FACTOR
+		super().__init__(10)
 	
-
 class ParseQueryToCommand():
 	def parse(self, query):
 		query = query.query # to get the actual json thing
@@ -68,7 +66,7 @@ class ParseQueryToCommand():
 			if len(obj.direction) > 1: #trick: ne is diag, n is straight
 				obj.duration = obj.duration * 1.4 # sqr 2
 		if query[1]['code'] == COMMAND_WORK:
-			obj = CommandWork() 
+			obj = CommandAskWork() 
 		obj.id = query[0]['code']
 		return obj
 	
