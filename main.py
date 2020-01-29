@@ -23,7 +23,7 @@ class Main():
 	def __init__(self):
 		self.init_curses()
 		self.map = Map_()
-		self.map.randomize()
+		self.map.place()
 		self.query_win = curses.newwin(1, 60, 0, 0)
 		self.log_win = curses.newwin(10, 120, 2, 0)
 		self.log_win.scrollok(True)

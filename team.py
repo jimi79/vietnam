@@ -65,8 +65,8 @@ class Team():
 				if c > 0:
 					items.append("some fellows")
 
-			if self.map.stuff[y][x] != None:
-				items.append(self.map.stuff[y][x])
+			if self.map.wonder[y][x] != None:
+				items.append(self.map.wonder[y][x])
 		
 		if len(items) == 0:
 			txt = None
@@ -91,7 +91,7 @@ class Team():
 				items.append(item) 
 		if len(items) == 0:
 			items.append("nothing")
-		return ', '.join(items)
+		return '. '.join(items)
 
 	def move(self, direction):
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
@@ -115,7 +115,7 @@ class Team():
 				self.apply(CommandFight())
 
 	def fight(self):
-		killed = random.randrange(0, int(self.count * 1.5))
+		killed = random.randrange(0, int(self.count * 2))
 		teams = self.get_ennemies_at_pos()
 		#log("%s: we killed %d peoples, we have %d peoples left" % (self.nato, killed, self.count))
 		for team in teams:
@@ -166,7 +166,7 @@ class Team():
 		self.commands.append(command)
 
 	def apply_look(self, command):
-		if len([command for command in self.commands if (isinstance(commancommand, CommandLook))]) == 0:
+		if len([command for command in self.commands if (isinstance(command, CommandLook))]) == 0:
 # we shift what we had
 			for a in self.commands:
 				a.when = a.when + datetime.timedelta(seconds=command.duration)

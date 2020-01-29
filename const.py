@@ -16,10 +16,10 @@ QUERY_DONE = 2 # query complete, could be executed
 QUERY_ERR = 1 # key not authorized
 QUERY_NEXT = 0 # query not complete
 
-SIZE = 5
+SIZE = 10
 
 COUNT_PLAYER_TEAMS = 2
-COUNT_NPC_TEAMS = 0
+COUNT_NPC_TEAMS = 3
 
 SPEED_FACTOR = 1 # 1 normal, 2 faster
 SPEED_FACTOR = 100 # 1 normal, 2 faster

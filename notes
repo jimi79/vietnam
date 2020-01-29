@@ -1,10 +1,30 @@
-add 'stop' action to stop moving (also fired when hitting a border)
 display a message at the end of a fight (if alive)
+in the log at start, describe all the teams with number of ppl in it. or maybe in status.
+change map design so that ppl don't pop on water, water can't be in the forest, etc:
+	maintain a list of free geo stuff
+	list of water stuff (pop from list of free-plain stuff)
+	list of forest stuff (can't be on water)
+	water and forest count are %age based on the total surface. if no place left, we abandon.
+	same for location of things
+	and use the forest + plain stuff to list free location for ppl (bad and good guy can pop on each other)
+	and same for workplace
+
+	for water stuff, we could add an action 'build a bridge'... but i don't like it. as for water, we could have multiples designs to make sure there is a path
+	the most obvious is water only on diagonals, but that won't look good
+	other is to have a thing like
+	WWWW WWW
+
+	WWWWWW W
+	meaning one line on two only for water, and on each line, one cell can't have water in it.
+
+
 slow typing messages maybe
 how to make water super dangerous, but still crossable in case random doesn't make the map possible? -> not crossable. too bad if map is unsolvable
  -> find a way to build a map while it's possible to solve it (like water can't be near water ?), maybe put water only on diagonal cells
 find how to solve work (how the time can be lowered if multiple ppl on the cell)
-in the log at start, describe all the teams with number of ppl in it. 
 after a fight (which happens when COMMAND = fight (autocreated once ennemies on cell) and ennemies = 0), reply 'xx lost'. meaning we need to store in the command itself the number of ppl alive, so we can, once fight ended, calculate the difference
 command move replies 'moving to %direction'
+
+
+https://stackoverflow.com/questions/11180845/is-there-a-library-to-convert-integer-to-first-second-third to display "i see our first objective, second, etc"
 

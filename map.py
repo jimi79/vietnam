@@ -3,17 +3,35 @@ from const import *
 from goals import *
 
 
-stuff_on_plain = ["Khai Dinh Tomb", "a village", "Marble Mountains", "Hang Son Doong Cave", "Temple of Literature", "Bac Ha", "Hang Nga's Guesthouse", "Cao Dai Temple", "Imperial Citadel", "Mui Ne", "Sa Pa Terraces", "Thien Mu Pagoda"]
-stuff_on_water = ["Con Dao Islands", "Tam Coc", "My Khe Beach", "Cham Islands", "Mekong Delta", "Phu Quoc"]
-
 class Map_():
+
+
+	def get_all_cells(self):
+		a = []
+		for y in range(0, SIZE):
+			for x in range(0, SIZE):
+				a.append((y, x))
+		return a
+
+	def init_for_categ(self, categ):
+		self.place_for[categ] = self.get_all_cells()
+		
 	def __init__(self):
-		self.geo = [[None for i in range(0, SIZE)] for j in range(0, SIZE)]
-		self.stuff = [[None for i in range(0, SIZE)] for j in range(0, SIZE)]
-		self.goals = Goals()
-		self.forest_cells = []
-		self.plain_cells = []
-		self.water_cells = []
+
+		self.place_for = {}
+		self.geo = [[None for i in range(0, SIZE)] for y in range(0, SIZE)]
+		self.wonder = [[None for i in range(0, SIZE)] for y in range(0, SIZE)]
+		self.init_for_categ('forest')
+		self.init_for_categ('plain')
+		self.init_for_categ('water')
+		self.init_for_categ('wonder_on_ground')
+		self.place_for['wonder_on_water'] = []
+		self.init_for_categ('work')
+		self.init_for_categ('player')
+		self.init_for_categ('npc')
+		self.placed = {}
+		self.placed['water'] = []
+		self.placed['forest'] = []
 
 	def get_color(self, y, x):
 		if self.geo[y][x] == None:
@@ -23,52 +41,84 @@ class Map_():
 		if self.geo[y][x] == WATER:
 			return COLOR_WATER
 
-	def randomize(self):
-		for i in range(0, 12):
-			x = rnd()
-			y = rnd()
-			self.geo[y][x] = FOREST
-		for i in range(0, 7):
-			x = rnd()
-			y = rnd()
-			self.geo[y][x] = WATER
-		self.init_list_geo()
-		self.add_stuff(int(SIZE * SIZE * 0.1)) # 10% of the surface
-
-	def init_list_geo(self):
+	def update_plains(self):
+		self.placed['plain'] = []
 		for y in range(0, SIZE):
 			for x in range(0, SIZE):
-				if self.geo[y][x] == WATER:
-					self.water_cells.append((y, x))
-				else:
-					if self.geo[y][x] == FOREST:
-						self.forest_cells.append((y, x)) 
-					else:
-						self.plain_cells.append((y, x))
+				if self.geo[y][x] == None:
+					self.placed['plain'].append((y, x))
 
 
-	def add_stuff_stuff(self, stuff, cells):
-		y, x = cells.pop(0)
-		item = stuff.pop(0)
-		self.stuff[y][x] = item
-		print(item)
-	
-	def add_stuff(self, count):
-		s_water = copy.copy(stuff_on_water)
-		s_plain = copy.copy(stuff_on_plain)
-		c_water = copy.copy(self.water_cells)
-		c_plain = copy.copy(self.plain_cells)
-		c_forest = copy.copy(self.forest_cells)
-		random.shuffle(s_water)
-		random.shuffle(s_plain)
-		random.shuffle(c_water)
-		random.shuffle(c_plain)
-		random.shuffle(c_forest)
-		for i in range(0, int(count * 1/3)):
-			if len(s_water) == 0 or len(c_water) == 0:
+	def place_forest(self, ratio):
+		count = int(SIZE * SIZE * ratio)
+		random.shuffle(self.place_for['forest'])
+		while count > 0 and len(self.place_for['forest']) > 0:
+			y, x = self.place_for['forest'][0]
+			self.geo[y][x] = FOREST
+			self.place_for['water'].remove((y,x))
+			self.place_for['forest'].remove((y,x))
+			self.place_for['wonder_on_ground'].remove((y,x))
+			count = count - 1
+			self.placed['forest'].append((y, x)) 
+			print("placing forest on %d %d" % (y, x))
+
+	def place_water(self, ratio): 
+		count = int(SIZE * SIZE * ratio)
+		random.shuffle(self.place_for['water'])
+		while count > 0 and len(self.place_for['water']) > 0:
+			y, x = self.place_for['water'][0]
+			self.geo[y][x] = WATER
+			self.placed['water'].append((y, x))
+			self.place_for['water'].remove((y,x))
+			self.place_for['wonder_on_ground'].remove((y,x))
+			self.place_for['forest'].remove((y,x))
+			self.place_for['player'].remove((y,x))
+			self.place_for['npc'].remove((y,x))
+			self.place_for['work'].remove((y,x))
+			self.place_for['wonder_on_water'].append((y, x))
+			count  = count - 1
+			print("placing water on %d %d" % (y, x))
+
+	def place_wonder(self, ratio): 
+		wonder_on_water = ["Con Dao Islands", "Tam Coc", "My Khe Beach", "Cham Islands", "Mekong Delta", "Phu Quoc"]
+		wonder_on_ground = ["Khai Dinh Tomb", "a village", "Marble Mountains", "Hang Son Doong Cave", "Temple of Literature", "Bac Ha", "Hang Nga's Guesthouse", "Cao Dai Temple", "Imperial Citadel", "Mui Ne", "Sa Pa Terraces", "Thien Mu Pagoda"]
+		random.shuffle(wonder_on_ground)
+		random.shuffle(wonder_on_water)
+		random.shuffle(self.place_for['wonder_on_water'])
+		random.shuffle(self.place_for['wonder_on_ground'])
+		count = int(SIZE * SIZE * ratio)
+		while True:
+			if count == 0:
+				break 
+			water_possible = True
+			ground_possible = True
+			if len(wonder_on_ground) == 0:
+				ground_possible = False
+			if len(wonder_on_water) == 0:
+				water_possible = False 
+			if len(self.place_for['wonder_on_ground']) == 0:
+				ground_possible = False
+			if len(self.place_for['wonder_on_water']) == 0:
+				water_possible = False 
+			if (not water_possible) and (not ground_possible):
 				break
-			self.add_stuff_stuff(s_water, c_water)
-		for i in range(0, int(count * 2/3)):
-			if len(s_plain) == 0 or len(c_plain) == 0:
-				break
-			self.add_stuff_stuff(s_plain, c_plain)
+			if not water_possible:
+				on_water = False
+			elif not ground_possible:
+				on_water = True
+			else:
+				on_water = random.randrange(0, 4) == 3 
+			if on_water:
+				wonder = wonder_on_water.pop(0)
+				y, x = self.place_for['wonder_on_water'].pop(0)
+			else:
+				wonder = wonder_on_ground.pop(0)
+				y, x = self.place_for['wonder_on_ground'].pop(0)
+			self.wonder[y][x] = wonder
+			print("Placing %s on %d %d" % (wonder, y, x))
+			count = count - 1 
+
+	def place(self, ratio_water = 0.3, ratio_forest = 0.4, ratio_wonder = 0.3):
+		self.place_water(ratio_water)
+		self.place_forest(ratio_forest)
+		self.place_wonder(ratio_wonder)
