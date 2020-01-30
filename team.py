@@ -27,6 +27,9 @@ class Team():
 		self.win = False
 	
 	def get_alive(self):
+		return (self.count > 0)
+	
+	def get_here(self):
 		return (not self.win) and (self.count > 0)
 
 	def get_pos_from_direction(self, direction):
@@ -59,7 +62,7 @@ class Team():
 							items.append("lots of soldiers")
 						else:
 							items.append("some soldiers")
-				c = sum([a.count for a in self.our_teams.list if a.x == x and a.y == y and a.id != self.id and a.get_alive()])
+				c = sum([a.count for a in self.our_teams.list if a.x == x and a.y == y and a.id != self.id and a.get_here()])
 				if c > 0:
 					items.append("some fellows")
 
@@ -255,16 +258,16 @@ class Team():
 			t = max([command.when for command in self.commands])
 		else:
 			t = datetime.datetime.now() 
-		command.when = t + datetime.timedelta(seconds = command.duration)
+		command.when = t + datetime.timedelta(seconds = command.get_duration())
 		self.commands.append(command)
 
 	def apply_query(self, command):
 # we shift what we had
 		for a in self.commands:
-			a.when = a.when + datetime.timedelta(seconds=command.duration)
+			a.when = a.when + datetime.timedelta(seconds=command.get_duration())
 # we add the new command
 		self.commands.insert(0, command) 
-		command.when = datetime.datetime.now() + datetime.timedelta(seconds = command.duration)
+		command.when = datetime.datetime.now() + datetime.timedelta(seconds = command.get_duration())
 
 	def apply(self, command): 
 # if a fight is requested, everythg else is cancel

@@ -26,8 +26,8 @@ class Main():
 		self.query_win = curses.newwin(1, 40, 0, 22)
 		self.time_win = curses.newwin(1, 20, 0, 0)
 		self.help_win = curses.newwin(10, 20, 0, 90)
-		self.log_win = curses.newwin(10, 80, 2, 0)
-		self.debug_win = curses.newwin(11, 12, 15, 0) # display the map, cheat
+		self.log_win = curses.newwin(30, 80, 2, 0)
+		self.debug_win = curses.newwin(11, 12, 33, 0) # display the map, cheat
 		self.log_win.scrollok(True)
 
 	def init_game(self):
