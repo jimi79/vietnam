@@ -11,6 +11,15 @@ from query import *
 
 class Main():
 
+	def confirm(self): 
+		self.query_win.clear()
+		self.query_win.addstr('confirm closing (y/n)')
+		while True:
+			a = curses.cbreak() #nocbreak to cancel
+			if a == 'y' or a == 'n':
+				break
+		return a == 'y' 
+
 	def init_curses(self):
 		curses.initscr()
 		curses.start_color()
@@ -138,7 +147,8 @@ class Main():
 			k = self.get_key(stdscr)
 			if k != None:
 				if k == ord('Q'):
-					break
+					if self.confirm():
+						break
 				if k == ord('1'):
 					self.log_goals()
 				if k == 27:

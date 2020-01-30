@@ -1,3 +1,14 @@
-Add a function move with a upper M to say 'move for one cell'. auto_repeat is off, and if off, then reply 'we stopped'.ض
-find a way to have a better work thing, like faster if multiple ppl
 display cursor on the query position, so we know what we are typing
+confirm when quitting
+display 'Q' as a way of quitting in the help
+find a way to have a better work thing, like faster if multiple ppl
+still think of using ncurses, without windows, and with a nice thing
+	log
+	log
+	log
+	[date] [a: team A, b: team B]
+
+	log
+	log
+	log
+	[date] team A [w: work, m: move]

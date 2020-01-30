@@ -45,7 +45,7 @@ class Team():
 		else:
 			y = self.y
 			x = self.x
-			s_direction = "right here"
+			s_direction = "here"
 		if x < 0 or y < 0 or x >= SIZE or y >= SIZE:
 			items.append("a border")
 		else: 
