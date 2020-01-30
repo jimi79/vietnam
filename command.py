@@ -19,7 +19,7 @@ class Command():
 		return d
 
 	def rand(self, delta):
-		return (random.randrange(1, 11)) * (random.randrange(0, 2) * 2 - 1)
+		return (random.randrange(1, 1 + delta)) * (random.randrange(0, 2) * 2 - 1)
 
 class CommandInsert(Command): # we ask a question, that interrupts what is going on
 	def __init__(self):
@@ -46,6 +46,13 @@ class CommandMove(CommandQueued):
 		super().__init__()
 		self.direction = None
 		self.auto_repeat = True
+
+class CommandMoveOnce(CommandQueued):
+	def __init__(self):
+		self.duration = (60, None)
+		super().__init__()
+		self.direction = None
+		self.auto_repeat = False
 
 class CommandAskWork(CommandQueued): # interrupt, even if we just asks
 	def __init__(self):
@@ -88,8 +95,11 @@ class ParseQueryToCommand():
 			obj = CommandStatus()
 		if query[1]['code'] == COMMAND_STOP:
 			obj = CommandStop()
-		if query[1]['code'] == COMMAND_MOVE:
-			obj = CommandMove()
+		if query[1]['code'] == COMMAND_MOVE or query[1]['code'] == COMMAND_MOVE_ONCE:
+			if query[1]['code'] == COMMAND_MOVE:
+				obj = CommandMove()
+			else:
+				obj = CommandMoveOnce()
 			obj.direction = query[2]['code']
 			if len(obj.direction) > 1: #trick: ne is diag, n is straight
 				obj.factor_duration = 1.4 # sqr 2

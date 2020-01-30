@@ -37,7 +37,8 @@ class Query():
 						't': {'text': 'status', 'code': COMMAND_STATUS},
 						's': {'text': 'stop', 'code': COMMAND_STOP},
 						'w': {'text': 'work', 'code': COMMAND_WORK},
-						'm': {'text': 'move', 'code': COMMAND_MOVE}
+						'm': {'text': 'move', 'code': COMMAND_MOVE},
+						'M': {'text': 'move for 5 km', 'code': COMMAND_MOVE_ONCE}
 					}
 				}
 
@@ -50,7 +51,7 @@ class Query():
 				self.end = True 
 			if self.query[-1]['code'] == COMMAND_WORK:
 				self.end = True
-			if self.query[-1]['code'] == COMMAND_MOVE:
+			if self.query[-1]['code'] == COMMAND_MOVE or self.query[-1]['code'] == COMMAND_MOVE_ONCE:
 				self.pos = {
 					'name': 'direction', 
 					'values': 

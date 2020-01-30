@@ -51,8 +51,12 @@ class Team():
 		else: 
 			if self.map.geo[y][x] == FOREST:
 				items.append("a forest")
-			if self.map.geo[y][x] == WATER:
-				items.append("some water")
+			if self.map.wonder[y][x] != None:
+				items.append(self.map.wonder[y][x])
+			else:
+				if self.map.geo[y][x] == WATER:
+					items.append("some water")  # if there is a wonder, no need to mention the water, it's obvious
+
 			if self.map.geo[y][x] != FOREST: # can't see an ennemy in the forest
 				if self.other_teams != None:
 					c = 0
@@ -66,8 +70,6 @@ class Team():
 				if c > 0:
 					items.append("some fellows")
 
-			if self.map.wonder[y][x] != None:
-				items.append(self.map.wonder[y][x])
 
 			for goal in self.goals.list:
 				if goal.x == x and goal.y == y:
@@ -98,7 +100,8 @@ class Team():
 			items.append("nothing")
 		return '. '.join(items)
 
-	def move(self, direction):
+	def move(self, command):
+		direction = command.direction
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
 		x = self.x + (1 if "e" in direction else -1 if "w" in direction else 0)	
 		if y >= SIZE:
@@ -117,6 +120,9 @@ class Team():
 		if self.map.geo[y][x] == WATER:
 			self.add_reply("we can't go pass that water")
 			return False
+		else:
+			if isinstance(command, CommandMoveOnce):
+				self.add_reply("we are at the new location")
 		self.y = y
 		self.x = x
 		return True
@@ -183,7 +189,7 @@ class Team():
 
 	def status(self):
 		s = "we have %d people left." % self.count
-		s = s + " %s." % ("we are a support team" if self.letter != 'a' else "we are the working team")
+		#s = s + " %s." % ("we are a support team" if self.letter != 'a' else "we are the working team")
 		return s 
 
 	def get_non_end_goal_list(self):
@@ -250,8 +256,8 @@ class Team():
 						self.add_reply(self.look())
 					elif isinstance(command, CommandStatus): 
 						self.add_reply(self.status())
-					elif isinstance(command, CommandMove):
-						if not self.move(command.direction):
+					elif isinstance(command, CommandMove) or isinstance(command, CommandMoveOnce):
+						if not self.move(command):
 							command.auto_repeat = False
 					elif isinstance(command, CommandPatrol):
 						self.do_patrol(command)
