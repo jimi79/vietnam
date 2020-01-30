@@ -35,6 +35,6 @@ RATIO_WONDER = 0.2
 #RATIO_FOREST = 0.2
 #SIZE = 3
 #RATIO_WATER = 0
-#SPEED_FACTOR = 50 # 1 normal, 2 faster
+SPEED_FACTOR = 4 # 1 normal, 2 faster
 #DEBUG = True
 #COUNT_NPC_TEAMS = 10

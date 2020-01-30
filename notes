@@ -1,3 +1,9 @@
+moving bad guys (one command, move every 120 somethg random 60, to an allowed cell if current = origin, or origin if != origin)
+
+when non npc moving, if u're on top of a goal, you stop?
+
+display current time on top, display cursor after the last command (get length of somethg, i don't know)
+add some randomness for the walk time, as well as the work time.
 add a status command
 display a message at the end of a fight (if alive)
 create a new command 'move around', that will get all the cells around some team, and check if they are usable (not water, actualy place_for_npc'). and every 30 minutes or whatever the delay, if we are in original_x original_y, then move to a random place from the list, if not move to x y (so it's moving around approximately)

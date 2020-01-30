@@ -26,6 +26,9 @@ class Team():
 		self.x = x
 		self.win = False
 	
+	def get_alive(self):
+		return (not self.win) and (self.count > 0)
+
 	def get_pos_from_direction(self, direction):
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
 		x = self.x + (1 if "e" in direction else -1 if "w" in direction else 0)	
@@ -56,7 +59,7 @@ class Team():
 							items.append("lots of soldiers")
 						else:
 							items.append("some soldiers")
-				c = sum([a.count for a in self.our_teams.list if a.x == x and a.y == y and a.id != self.id])
+				c = sum([a.count for a in self.our_teams.list if a.x == x and a.y == y and a.id != self.id and a.get_alive()])
 				if c > 0:
 					items.append("some fellows")
 
@@ -286,7 +289,7 @@ class Team():
 			self.replies.append(reply)
 	
 	def dump_replies(self):
-		if self.count > 0:
+		if self.get_alive():
 			r = copy.copy(self.replies)
 		else: 
 			r = []

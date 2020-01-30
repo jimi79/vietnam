@@ -23,7 +23,8 @@ class Main():
 
 	def init_windows(self):
 		self.init_curses()
-		self.query_win = curses.newwin(1, 40, 0, 0)
+		self.query_win = curses.newwin(1, 40, 0, 22)
+		self.time_win = curses.newwin(1, 20, 0, 0)
 		self.help_win = curses.newwin(10, 20, 0, 90)
 		self.log_win = curses.newwin(10, 80, 2, 0)
 		self.debug_win = curses.newwin(11, 12, 15, 0) # display the map, cheat
@@ -77,7 +78,12 @@ class Main():
 		self.help_win.refresh()
 		self.query_win.clear()
 		self.query_win.addstr(query.get_text()) 
-		self.help_win.refresh()
+		self.query_win.refresh()
+	
+	def update_time(self):
+		self.time_win.clear;
+		self.time_win.addstr(0, 0, self.get_time())
+		self.time_win.refresh()
 
 	def add_wrap(self, win, text):
 		words = text.split(" ")
@@ -87,14 +93,15 @@ class Main():
 			if len(word) + x > maxx:
 				win.addstr("\n")
 			win.addstr("%s " % word)
+		win.addstr("\n")
 		self.log_win.refresh() 
 
 	def add_log(self, text, title = None):
 		if title == None:
-			s = "  %s\n%s\n" % (self.get_time(), text)
+			self.add_wrap(self.log_win, "  -- %s --" % self.get_time())
 		else:
-			s = "  %s, %s\n%s\n" % (self.get_time(), title, text)
-		self.add_wrap(self.log_win, s) 
+			self.add_wrap(self.log_win, "  -- %s, %s --" % (self.get_time(), title))
+		self.add_wrap(self.log_win, text) 
 
 	def log_goals(self):
 		if DEBUG:
@@ -115,9 +122,7 @@ class Main():
 	
 	def run(self, stdscr): 
 		query = Query(self.player_teams)
-		self.help_win.clear()
-		self.help_win.addstr(query.get_help()) # todo get_help
-		self.help_win.refresh()
+		self.update_query(query)
 		k = None
 		self.initial_time = datetime.datetime.now()
 
@@ -127,6 +132,7 @@ class Main():
 #			self.add_log("Team %s: %d pp" % (team.nato, team.count))
 
 		while True:
+			self.update_time()
 			if DEBUG: 
 				self.print_map(self.debug_win)
 			k = self.get_key(stdscr)

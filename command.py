@@ -1,3 +1,4 @@
+import random
 from const import *
 
 class Command():
@@ -9,6 +10,9 @@ class Command():
 			self.duration = duration / SPEED_FACTOR
 		else:
 			self.duration = None
+
+	def rand(self, delta):
+		return (random.randrange(1, 11)) * (random.randrange(0, 2) * 2 - 1)
 
 class CommandQuery(Command): # we ask a question, that interrupts what is going on
 	def __init__(self, duration):
@@ -28,7 +32,7 @@ class CommandAction(Command):
 
 class CommandMove(CommandAction):
 	def __init__(self):
-		super().__init__(60)
+		super().__init__(duration = 60 + self.rand(10))
 		self.direction = None
 		self.auto_repeat = True
 
@@ -38,7 +42,7 @@ class CommandAskWork(CommandAction): # interrupt, even if we just asks
 
 class CommandDoWork(CommandAction):
 	def __init__(self, goal):
-		super().__init__(goal.duration)
+		super().__init__(duration = goal.duration + self.rand(10))
 		self.goal = goal
 
 class CommandFight(CommandAction):
