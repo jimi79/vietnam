@@ -20,7 +20,7 @@ QUERY_NEXT = 0 # query not complete
 SIZE = 10
 
 COUNT_PLAYER_TEAMS = 2
-COUNT_NPC_TEAMS = 3
+COUNT_NPC_TEAMS = 4
 
 SPEED_FACTOR = 1 # 1 normal, 2 faster
 
@@ -33,8 +33,8 @@ RATIO_WONDER = 0.2
 #debug
 
 #RATIO_FOREST = 0.2
-SIZE = 10
+#SIZE = 10
 #RATIO_WATER = 0
-SPEED_FACTOR = 40 # 1 normal, 2 faster
-DEBUG = True
-COUNT_NPC_TEAMS = 1
+#SPEED_FACTOR = 40 # 1 normal, 2 faster
+#DEBUG = True
+#COUNT_NPC_TEAMS = 1
