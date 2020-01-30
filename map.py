@@ -142,3 +142,6 @@ class Map_():
 	def get_team_npc_location(self):
 		random.shuffle(self.place_for['npc'])
 		return self.place_for['npc'][0] 
+
+	def get_team_npc_patrol_location(self, our_y, our_x):
+		return [(y, x) for (y, x) in self.place_for['npc'] if x != our_x and y != our_y and ((abs(x - our_x) <= 1) and (abs(y - our_y) <= 1))]

@@ -219,8 +219,19 @@ class Team():
 			command.goal.done = True 
 			self.add_reply("%s is done" % command.goal.name)
 
+	def do_patrol(self, command):
+		log("a")
+		if self.x == command.x and self.y == command.y:
+			random.shuffle(command.locations)
+			self.y = command.locations[0][0]
+			self.x = command.locations[0][1]
+		else:
+			self.x = command.x
+			self.y = command.y
+
 	def tick(self): 
-		if self.count <= 0:
+		if not self.get_here():
+			self.commands = []
 			return
 		self.pre_command_process() 
 	
@@ -242,18 +253,23 @@ class Team():
 					elif isinstance(command, CommandMove):
 						if not self.move(command.direction):
 							command.auto_repeat = False
+					elif isinstance(command, CommandPatrol):
+						self.do_patrol(command)
 					elif isinstance(command, CommandAskWork):
 						self.ask_work()
 					elif isinstance(command, CommandDoWork):
 						self.do_work(command)
 					else:
 						raise Exception("instance of %s not handled" % str(command))
+				log("b %s" % ("t" if command.auto_repeat else "f"))
 				if command.auto_repeat:
+					log("there")
 					self.apply(command)
 
-	def apply_action(self, command):
-# we remove all pending command except looking around
-		self.commands = [command for command in self.commands if not(isinstance(command, CommandAction))] 
+	def apply_append(self, command):
+# we remove all pending command except the one who were inserted
+		log("here")
+		self.commands = [command for command in self.commands if not(isinstance(command, CommandQueued))] 
 		if len(self.commands) > 0:
 			t = max([command.when for command in self.commands])
 		else:
@@ -261,10 +277,10 @@ class Team():
 		command.when = t + datetime.timedelta(seconds = command.get_duration())
 		self.commands.append(command)
 
-	def apply_query(self, command):
+	def apply_insert(self, command):
 # we shift what we had
 		for a in self.commands:
-			a.when = a.when + datetime.timedelta(seconds=command.get_duration())
+			a.when = a.when + datetime.timedelta(seconds = command.get_duration())
 # we add the new command
 		self.commands.insert(0, command) 
 		command.when = datetime.datetime.now() + datetime.timedelta(seconds = command.get_duration())
@@ -276,15 +292,18 @@ class Team():
 			return
 		if (self.win):
 			return 
-		log(str(command))
 		if isinstance(command, CommandFight):
-			self.commands = [] 
+			self.commands = [command for command in self.commands if isinstance(command, CommandPatrol)]  # we remove all commands except patrol
 		if isinstance(command, CommandStop):
 			self.commands = [] 
-		if isinstance(command, CommandAction): # fight included
-			self.apply_action(command)
-		if isinstance(command, CommandQuery):
-			self.apply_query(command)
+		if isinstance(command, CommandQueued): # fight included
+			self.apply_append(command)
+		if isinstance(command, CommandInsert):
+			self.apply_insert(command)
+		if DEBUG:
+			f = open("log_%s" % self.nato, "w")
+			for command in self.commands:
+				f.write("%s @ %s\n" % (str(command), command.when.strftime("%H:%M:%S")))
 
 	def add_reply(self, value):
 		if not self.npc:
