@@ -93,5 +93,5 @@ class Query():
 
 	def delete_last(self):
 		if len(self.query) > 0:
-			self.query = self.query[0:-2]
+			self.query = self.query[0:-1]
 			self.next_query()
