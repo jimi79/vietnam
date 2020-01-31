@@ -3,16 +3,9 @@ import json
 
 class Query():
 	def init(self):
-		self.pos = {
-			'name': 'team', 
-			'values': 
-				{a.letter: {
-					'text': 'Team %s' % a.nato, 'code': a.id
-				} for a in self.teams.list
-			}
-		}
 		self.query = [] # current query
 		self.end = False
+		self.next_query()
 
 	def __init__(self, teams):
 		self.teams = teams
@@ -28,6 +21,17 @@ class Query():
 		return lst
 
 	def next_query(self):
+		if len(self.query) == 0:
+			self.pos = {
+				'name': 'team', 
+				'values': 
+					{a.letter:
+						{
+						'text': 'Team %s' % a.nato, 'code': a.id
+						} for a in self.teams.list
+					}
+				}
+
 		if len(self.query) == 1:
 			self.pos = {
 				'name': 'action', 
@@ -86,3 +90,8 @@ class Query():
 				return QUERY_ERR
 		else:
 			return QUERY_ERR
+
+	def delete_last(self):
+		if len(self.query) > 0:
+			self.query = self.query[0:-2]
+			self.next_query()

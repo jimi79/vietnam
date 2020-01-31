@@ -61,7 +61,7 @@ class Main():
 		self.npc_teams = Teams(count = COUNT_NPC_TEAMS, map_ = self.map, npc = True, goals = self.goals) 
 		self.player_teams.set_other_team(self.npc_teams)
 		self.npc_teams.set_other_team(self.player_teams)
-		self.initial_time = None 
+		self.initial_time = datetime.datetime.now()
 
 	def init(self, stdscr):
 		self.init_windows(stdscr)
@@ -96,17 +96,12 @@ class Main():
 		return self.player_teams.get_replies()
 
 	def update_query(self, query):
-#		self.help_win.clear()
-#		self.help_win.addstr(query.get_help()) # todo get_help
-#		self.help_win.refresh()
 		self.query_win.clear()
 		self.query_win.addstr(query.get_text()) 
 		self.query_win.refresh()
 	
 	def get_help(self, query):
-		#y, x = self.query_win.getyx() 
 		self.add_log('\n'.join(query.get_help()))
-		#self.query_win.move(y, x)
 		self.query_win.refresh()
 
 	
@@ -158,7 +153,6 @@ class Main():
 		query = Query(self.player_teams)
 		self.update_query(query)
 		k = None
-		self.initial_time = datetime.datetime.now()
 
 #		for team in self.player_teams.list:
 #			self.add_log("Team %s: %d pp" % (team.nato, team.count))
@@ -179,6 +173,9 @@ class Main():
 					self.get_help(query)
 				elif k == ord('1'):
 					self.log_goals()
+				elif k == curses.KEY_BACKSPACE:
+					query.delete_last()
+					self.update_query(query)
 				elif k == 27:
 					query.init()
 					self.update_query(query)
