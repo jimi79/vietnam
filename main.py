@@ -11,11 +11,13 @@ from query import *
 
 class Main():
 
-	def confirm(self): 
+	def confirm(self, stdscr): 
 		self.query_win.clear()
 		self.query_win.addstr('confirm closing (y/n)')
+		self.query_win.refresh() 
 		while True:
-			a = curses.cbreak() #nocbreak to cancel
+			curses.cbreak() #nocbreak to cancel
+			a = stdscr.getkey()
 			if a == 'y' or a == 'n':
 				break
 		return a == 'y' 
@@ -147,8 +149,10 @@ class Main():
 			k = self.get_key(stdscr)
 			if k != None:
 				if k == ord('Q'):
-					if self.confirm():
+					if self.confirm(stdscr):
 						break
+					else:
+						self.update_query(query)
 				if k == ord('1'):
 					self.log_goals()
 				if k == 27:
