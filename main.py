@@ -26,20 +26,32 @@ class Main():
 		curses.initscr()
 		curses.start_color()
 		#curses.use_default_colors()
-		curses.curs_set(0)
+		#curses.curs_set(0)
 		#curses.cbreak()
 		curses.halfdelay(10) #nocbreak to cancel
-		curses.init_pair(COLOR_WATER, curses.COLOR_WHITE, curses.COLOR_BLUE)
-		curses.init_pair(COLOR_FOREST, curses.COLOR_BLACK, curses.COLOR_GREEN)
+		#curses.init_pair(1, curses.COLOR_GRAY) # to display help
 
-	def init_windows(self):
+	def init_windows(self, stdscr):
 		self.init_curses()
-		self.query_win = curses.newwin(1, 40, 0, 22)
-		self.time_win = curses.newwin(1, 20, 0, 0)
-		self.help_win = curses.newwin(10, 20, 0, 90)
-		self.log_win = curses.newwin(30, 80, 2, 0)
-		self.debug_win = curses.newwin(11, 12, 33, 0) # display the map, cheat
+		y, x = stdscr.getmaxyx()
+		self.query_win = curses.newwin(1, x, y - 2, 0)
+		self.log_win = curses.newwin(y - 2, x, 0, 0)
 		self.log_win.scrollok(True)
+		self.old_y, self.old_x = (y, x)
+	
+	def resize_windows(self, stdscr):
+		y, x = stdscr.getmaxyx()
+		if y != self.old_y or x != self.old_x:
+			self.log_win.addstr('resized to %d %d\n' % (y,x))
+			self.old_y = y
+			self.old_x = x
+			self.query_win.resize(1, x)
+			self.query_win.mvwin(y - 2, 0)
+			self.log_win.resize(y - 2, x)
+			self.log_win.mvwin(0, 0)
+			self.log_win.addstr('after\n')
+			self.query_win.refresh()
+			self.log_win.refresh()
 
 	def init_game(self):
 		self.map = Map_()
@@ -51,8 +63,8 @@ class Main():
 		self.npc_teams.set_other_team(self.player_teams)
 		self.initial_time = None 
 
-	def __init__(self):
-		self.init_windows()
+	def init(self, stdscr):
+		self.init_windows(stdscr)
 		self.init_game()
 
 	def tick(self):
@@ -84,12 +96,19 @@ class Main():
 		return self.player_teams.get_replies()
 
 	def update_query(self, query):
-		self.help_win.clear()
-		self.help_win.addstr(query.get_help()) # todo get_help
-		self.help_win.refresh()
+#		self.help_win.clear()
+#		self.help_win.addstr(query.get_help()) # todo get_help
+#		self.help_win.refresh()
 		self.query_win.clear()
 		self.query_win.addstr(query.get_text()) 
 		self.query_win.refresh()
+	
+	def get_help(self, query):
+		#y, x = self.query_win.getyx() 
+		self.add_log('\n'.join(query.get_help()))
+		#self.query_win.move(y, x)
+		self.query_win.refresh()
+
 	
 	def update_time(self):
 		self.time_win.clear;
@@ -104,7 +123,9 @@ class Main():
 			if len(word) + x > maxx:
 				win.addstr("\n")
 			win.addstr("%s " % word)
-		win.addstr("\n")
+		y, x = win.getyx()
+		if x != 0:
+			win.addstr("\n")
 		self.log_win.refresh() 
 
 	def add_log(self, text, title = None):
@@ -132,6 +153,8 @@ class Main():
 		return self.player_teams.is_end_game()
 	
 	def run(self, stdscr): 
+		self.init(stdscr) 
+
 		query = Query(self.player_teams)
 		self.update_query(query)
 		k = None
@@ -143,9 +166,8 @@ class Main():
 #			self.add_log("Team %s: %d pp" % (team.nato, team.count))
 
 		while True:
-			self.update_time()
-			if DEBUG: 
-				self.print_map(self.debug_win)
+			#self.update_time()
+			self.resize_windows(stdscr)
 			k = self.get_key(stdscr)
 			if k != None:
 				if k == ord('Q'):
@@ -153,19 +175,22 @@ class Main():
 						break
 					else:
 						self.update_query(query)
-				if k == ord('1'):
+				elif k == ord('\t'):
+					self.get_help(query)
+				elif k == ord('1'):
 					self.log_goals()
-				if k == 27:
+				elif k == 27:
 					query.init()
 					self.update_query(query)
-				k = chr(k)
-				state = query.test_key(k)
-				if state != QUERY_ERR: 
-					if state == QUERY_DONE:
-						self.player_teams.apply(query)
-						self.add_log(query.get_text())
-						query.init()
-					self.update_query(query)
+				else:
+					k = chr(k)
+					state = query.test_key(k)
+					if state != QUERY_ERR: 
+						if state == QUERY_DONE:
+							self.player_teams.apply(query)
+							self.add_log(query.get_text())
+							query.init()
+						self.update_query(query)
 			self.tick()
 			for reply in self.get_replies():
 				self.add_log(reply.text, reply.team)

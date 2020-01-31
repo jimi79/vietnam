@@ -25,7 +25,7 @@ class Query():
 	def get_help(self): 
 		values = self.pos['values']
 		lst = ["%s: %s" % (key, values[key]['text']) for key in values.keys()]
-		return "\n".join(lst)
+		return lst
 
 	def next_query(self):
 		if len(self.query) == 1:

@@ -68,7 +68,6 @@ class Map_():
 			self.place_for['wonder_on_ground'].remove((y,x))
 			count = count - 1
 			self.placed['forest'].append((y, x)) 
-			print("placing forest on %d %d" % (y, x))
 
 	def place_water(self, ratio): 
 		count = int(SIZE * SIZE * ratio)
@@ -85,7 +84,6 @@ class Map_():
 			self.place_for['goal'].remove((y,x))
 			self.place_for['wonder_on_water'].append((y, x))
 			count  = count - 1
-			print("placing water on %d %d" % (y, x))
 
 	def place_wonder(self, ratio): 
 		wonder_on_water = ["Con Dao Islands", "Tam Coc", "My Khe Beach", "Cham Islands", "Mekong Delta", "Phu Quoc"]
@@ -123,7 +121,6 @@ class Map_():
 				wonder = wonder_on_ground.pop(0)
 				y, x = self.place_for['wonder_on_ground'].pop(0)
 			self.wonder[y][x] = wonder
-			print("Placing %s on %d %d" % (wonder, y, x))
 			count = count - 1 
 
 	def place(self, ratio_water = 0.3, ratio_forest = 0.4, ratio_wonder = 0.3):

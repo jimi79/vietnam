@@ -20,7 +20,9 @@ class Teams():
 				y, x = map_.get_team_player_location()
 			t = Team(id_ = i, count = members, map_ = map_, goals = goals, y = y, x = x) 
 			if npc:
-				t.apply(CommandPatrol(map_.get_team_npc_patrol_location(y, x), y, x)) 
+				locations = map_.get_team_npc_patrol_location(y, x)
+				if len(locations) > 0:
+					t.apply(CommandPatrol(locations, y, x)) 
 			t.npc = npc
 			t.our_teams = self
 
