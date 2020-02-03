@@ -31,6 +31,7 @@ COUNT_NPC_TEAMS = 6
 SPEED_FACTOR = 1 # 1 normal, 2 faster
 
 DEBUG = False
+SUPERMAN = False
 
 RATIO_FOREST = 0.2
 RATIO_WATER = 0.2
