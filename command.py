@@ -32,7 +32,7 @@ class CommandLook(CommandInsert):
 
 class CommandStatus(CommandInsert):
 	def __init__(self):
-		self.duration = (5, None)
+		self.duration = (1, None)
 		super().__init__()
 
 class CommandQueued(Command):

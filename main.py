@@ -42,14 +42,12 @@ class Main():
 	def resize_windows(self, stdscr):
 		y, x = stdscr.getmaxyx()
 		if y != self.old_y or x != self.old_x:
-			self.log_win.addstr('resized to %d %d\n' % (y,x))
 			self.old_y = y
 			self.old_x = x
 			self.query_win.resize(1, x)
 			self.query_win.mvwin(y - 2, 0)
 			self.log_win.resize(y - 2, x)
 			self.log_win.mvwin(0, 0)
-			self.log_win.addstr('after\n')
 			self.query_win.refresh()
 			self.log_win.refresh()
 
@@ -137,16 +135,25 @@ class Main():
 
 
 	def get_time(self):
-		d = (datetime.datetime.now() - self.initial_time).seconds
+		d = (datetime.datetime.now() - self.initial_time).total_seconds()
 		#d = d / 10
 		d = d * SPEED_FACTOR
 		day = d // (24 * 60)
 		d = d % (24 * 60) 
 		return "day %d %02d:%02d" % (day + 1, d // 60, d % 60)
 
-	def is_end_game(self):
-		return self.player_teams.is_end_game()
+	def get_all_teams_status(self):
+		return self.player_teams.get_all_teams_status()
+
+	def log_status(self):
+		a = self.get_all_teams_status()
+		self.add_log(", ".join(a))
 	
+	def log_locations(self):
+		p = "player: %s" % ", ".join(self.player_teams.get_debug_infos())
+		n = "npc: %s" % ", ".join(self.npc_teams.get_debug_infos())
+		self.add_log("%s\n%s" % (p, n))
+
 	def run(self, stdscr): 
 		self.init(stdscr) 
 
@@ -172,7 +179,11 @@ class Main():
 				elif k == ord('\t'):
 					self.get_help(query)
 				elif k == ord('1'):
-					self.log_goals()
+					self.log_goals() 
+				elif k == ord('2'):
+					self.log_status()
+				elif k == ord('3'):
+					self.log_locations()
 				elif k == curses.KEY_BACKSPACE:
 					query.delete_last()
 					self.update_query(query)
@@ -191,8 +202,12 @@ class Main():
 			self.tick()
 			for reply in self.get_replies():
 				self.add_log(reply.text, reply.team)
-			if self.is_end_game():
-				self.add_log('win, press a key')
+			a = self.get_all_teams_status()
+			if ALL_ALIVE_TEAMS_EXITED in a:
+				self.add_log('all alive units are safe. Press a key to exit')
+#				else:
+#					self.add_log('you lose, one unit is wiped out. Press a key to exit')
+# i prefer then the player notice himself that a troop is dead
 				curses.cbreak() #nocbreak to cancel
 				a = stdscr.getch() # no halfkey here
 				break 

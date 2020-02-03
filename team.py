@@ -24,13 +24,13 @@ class Team():
 		self.goals = goals
 		self.y = y
 		self.x = x
-		self.win = False
+		self.exited = False
 	
 	def get_alive(self):
 		return (self.count > 0)
 	
 	def get_here(self):
-		return (not self.win) and (self.count > 0)
+		return (not self.exited) and (self.count > 0)
 
 	def get_pos_from_direction(self, direction):
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
@@ -219,7 +219,7 @@ class Team():
 				
 	def do_work(self, command):
 		if isinstance(command.goal, EndGoal):
-			self.win = True
+			self.exited = True
 			self.add_reply("we exited, bye")
 		else:
 			command.goal.done = True 
@@ -296,7 +296,7 @@ class Team():
 # if a fight is going on, then we ignore everythg else (included the command to fight)
 		if (self.fighting()):
 			return
-		if (self.win):
+		if (self.exited):
 			return 
 		if isinstance(command, CommandFight):
 			self.commands = [command for command in self.commands if isinstance(command, CommandPatrol)]  # we remove all commands except patrol

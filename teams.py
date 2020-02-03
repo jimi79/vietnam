@@ -1,6 +1,7 @@
 from team import *
 from command import *
 from pprint import pformat
+from const import *
 import json
 
 
@@ -11,8 +12,8 @@ class Teams():
 			if npc:
 				log('adding team %d' % i)
 			members = random.randrange(5, 15)
-			if DEBUG:
-				if not npc:
+			if not npc:
+				if SUPERMAN:
 					members = 100
 			if npc:
 				y, x = map_.get_team_npc_location()
@@ -59,5 +60,22 @@ class Teams():
 			replies = replies + team.dump_replies()
 		return replies
 
-	def is_end_game(self):
-		return len([team for team in self.list if team.win]) == len(self.list)
+	def get_all_teams_status(self):
+		r = []
+		alive_teams = [team for team in self.list if team.get_alive()]
+		exited_teams = [team for team in self.list if team.exited]
+		if len(alive_teams) != len(self.list):
+			r.append(ONE_TEAM_DEAD)
+		if len(alive_teams) == 0:
+			r.append(ALL_TEAMS_DEAD)
+		if len(exited_teams) == len(alive_teams) and len(alive_teams) > 0:
+			r.append(ALL_ALIVE_TEAMS_EXITED)
+		if len(exited_teams) == len(self.list):
+			r.append(ALL_TEAMS_EXITED)
+		return r
+
+	def get_debug_infos(self):
+		l = []
+		for t in self.list:
+			l.append("%s: %d alive (y=%d, x=%d)" % (t.nato, t.count, t.y, t.x))
+		return l
