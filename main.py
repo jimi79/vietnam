@@ -65,9 +65,26 @@ class Main():
 		self.init_windows(stdscr)
 		self.init_game()
 
-	def tick(self):
+	def tick(self, stdscr):
 		self.player_teams.tick()
 		self.npc_teams.tick()
+
+		for reply in self.get_replies():
+			self.add_log(reply.text, reply.team)
+		a = self.get_all_teams_status()
+
+		end = False
+		if ALL_ALIVE_TEAMS_EXITED in a:
+			self.add_log('all alive units are safe. Press a key to exit')
+			end = True
+
+		if end:
+			curses.cbreak() #nocbreak to cancel
+			a = stdscr.getch() # no halfkey here
+			return False
+
+		return True
+
 
 	def print_map(self, win):
 		win.clear()
@@ -161,16 +178,27 @@ class Main():
 		self.update_query(query)
 		k = None
 
-#		for team in self.player_teams.list:
-#			self.add_log("Team %s: %d pp" % (team.nato, team.count))
-#		for team in self.npc_teams.list:
-#			self.add_log("Team %s: %d pp" % (team.nato, team.count))
-
+		old_time = datetime.datetime.now()
 		while True:
 			#self.update_time()
-			self.resize_windows(stdscr)
+			time = datetime.datetime.now()
+			if (time - old_time).total_seconds() > 1: 
+				if not self.tick(stdscr):
+					break
+				old_time = time 
+				self.resize_windows(stdscr)
+
 			k = self.get_key(stdscr)
 			if k != None:
+				if DEBUG:
+					if k == ord('1'):
+						self.log_goals() 
+					elif k == ord('2'):
+						self.log_status()
+					elif k == ord('3'):
+						self.log_locations()
+
+
 				if k == ord('Q'):
 					if self.confirm(stdscr):
 						break
@@ -178,12 +206,6 @@ class Main():
 						self.update_query(query)
 				elif k == ord('\t'):
 					self.get_help(query)
-				elif k == ord('1'):
-					self.log_goals() 
-				elif k == ord('2'):
-					self.log_status()
-				elif k == ord('3'):
-					self.log_locations()
 				elif k == curses.KEY_BACKSPACE:
 					query.delete_last()
 					self.update_query(query)
@@ -199,15 +221,4 @@ class Main():
 							self.add_log(query.get_text())
 							query.init()
 						self.update_query(query)
-			self.tick()
-			for reply in self.get_replies():
-				self.add_log(reply.text, reply.team)
-			a = self.get_all_teams_status()
-			if ALL_ALIVE_TEAMS_EXITED in a:
-				self.add_log('all alive units are safe. Press a key to exit')
-#				else:
-#					self.add_log('you lose, one unit is wiped out. Press a key to exit')
-# i prefer then the player notice himself that a troop is dead
-				curses.cbreak() #nocbreak to cancel
-				a = stdscr.getch() # no halfkey here
-				break 
+
