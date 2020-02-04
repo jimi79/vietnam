@@ -46,7 +46,7 @@ class Query():
 						's': {'text': 'stop', 'code': COMMAND_STOP},
 						'w': {'text': 'work', 'code': COMMAND_WORK},
 						'm': {'text': 'move', 'code': COMMAND_MOVE},
-						'M': {'text': 'move for 5 km', 'code': COMMAND_MOVE_ONCE}
+						'M': {'text': 'move for %0.0f km' % CELL_RESOLUTION, 'code': COMMAND_MOVE_ONCE}
 					}
 				}
 			elif isinstance(team, TeamHelicopter): # will be TeamInfantry

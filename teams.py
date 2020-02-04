@@ -5,6 +5,16 @@ from const import *
 
 
 class Teams():
+	def add(self, team, npc, map_):
+		if npc:
+			locations = map_.get_team_npc_patrol_location(team.y, team.x)
+			if len(locations) > 0:
+				team.commands.add(CommandPatrol(locations, team.y, team.x)) 
+		team.npc = npc
+		team.our_teams = self 
+		team.map = map_
+		self.list.append(team) 
+
 	def __init__(self, count, map_, npc, goals):
 		self.list = []
 		for i in range(0, count):
@@ -16,17 +26,12 @@ class Teams():
 				y, x = map_.get_team_npc_location()
 			else: 
 				y, x = map_.get_team_player_location()
-			t = TeamInfantry(id_ = i, count = members, map_ = map_, goals = goals, y = y, x = x) 
-			if npc:
-				locations = map_.get_team_npc_patrol_location(y, x)
-				if len(locations) > 0:
-					t.commands.add(CommandPatrol(locations, y, x)) 
-			t.npc = npc
-			t.our_teams = self 
-			self.list.append(t)
+			t = TeamInfantry(id_ = i, count = members, goals = goals, y = y, x = x) 
+			self.add(t, npc, map_)
 
-	def append_heli(self, map_):
-		self.list.append(TeamHelicopter(len(self.list), map_))
+	def append_heli(self, map_, npc):
+		heli = TeamHelicopter(len(self.list))
+		self.add(heli, npc, map_)
 
 	def get_char(self, y, x):
 		for team in self.list:
@@ -71,6 +76,7 @@ class Teams():
 		return lst
 
 	def get_all_teams_status(self):
+# all infantry teams, helico is untouchable anyway
 		r = []
 		infantry_teams = self.get_infrantry_list()
 		alive_teams = [team for team in infantry_teams if team.get_alive()]

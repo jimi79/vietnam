@@ -56,7 +56,7 @@ class Main():
 		self.map.place(ratio_forest = RATIO_FOREST, ratio_wonder = RATIO_WONDER, ratio_water = RATIO_WATER)
 		self.goals = Goals(self.map) # a list of places, and place on the map the first one to reach 
 		self.player_teams = Teams(count = COUNT_PLAYER_TEAMS, map_ = self.map, npc = False, goals = self.goals)
-		self.player_teams.append_heli(self.map)
+		self.player_teams.append_heli(map_ = self.map, npc = False)
 		self.npc_teams = Teams(count = COUNT_NPC_TEAMS, map_ = self.map, npc = True, goals = self.goals) 
 		self.player_teams.set_other_team(self.npc_teams)
 		self.npc_teams.set_other_team(self.player_teams)
@@ -208,8 +208,7 @@ class Main():
 					elif k == ord('3'):
 						self.log_locations()
 					elif k == ord('4'):
-						self.log_tasks()
-
+						self.log_tasks() 
 
 				if k == ord('Q'):
 					if self.confirm(stdscr):
@@ -233,4 +232,3 @@ class Main():
 							self.add_log(query.get_text())
 							query.init()
 						self.update_query(query)
-

@@ -10,9 +10,8 @@ from goal import *
 nato = ['alpha', 'bravo', 'charly', 'delta', 'echo', 'fox-trot', 'hotel', 'india', 'juliet', 'kilo', 'lima', 'mike', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango', 'uniform', 'victor', 'wiskhey', 'x-ray', 'yankee', 'zulu']
 
 class Team():
-	def __init__(self, id_, map_): 
+	def __init__(self, id_): 
 		self.id = id_
-		self.map = map_
 		self.commands = Commands()
 		self.nato = nato.pop(0)
 		self.letter = self.nato[0]
@@ -49,8 +48,8 @@ class Team():
 		return r
 	
 class TeamInfantry(Team):
-	def __init__(self, id_, count, map_, goals, y, x): 
-		super().__init__(id_, map_)
+	def __init__(self, id_, count, goals, y, x): 
+		super().__init__(id_)
 		self.goals = goals
 		self.y = y
 		self.x = x
@@ -73,6 +72,9 @@ class TeamInfantry(Team):
 						command.auto_repeat = False
 						self.add_reply("we just had a fight, we killed %d peoples" % (command.killed))
 # no need to rewrite the command, bc it pops up as long as there are ennemies anyway
+				elif isinstance(command, CommandStop):
+					self.commands.reset()
+					self.add_reply('we stopped') 
 				elif isinstance(command, CommandLook):
 					self.do_look()
 				elif isinstance(command, CommandStatus): 
@@ -286,23 +288,25 @@ class TeamInfantry(Team):
 
 class TeamHelicopter(Team):
 #TODO in progress (nothing works for now)
-	def __init__(self, id_, map_):
-		super().__init__(id_, map_)
+	def __init__(self, id_):
+		super().__init__(id_)
 		self.exited = False
 	
 	def tick(self): 
 		if len(self.commands.list) > 0:
 			command = self.commands.list[0]
 			if command.when <= datetime.datetime.now():
-				self.commands.pop(0)
+				self.commands.list.pop(0)
 				if isinstance(command, CommandAskGetDirections):
-					if len(self.commands[1:]) == 0:
-						self.request(CommandDoGetDirections())
+					if len(self.commands.list) == 0:
+						self.commands.add(CommandDoGetDirections())
 					else:
-						if (isinstance(self.commands[0], CommandDoGetDirections)):
+						if (isinstance(self.commands.list[0], CommandDoGetDirections)):
 							self.add_reply("we are already on a reckon mission")
-						if (isinstance(self.commands[0], CommandRefuelling)):
+						elif (isinstance(self.commands.list[0], CommandRefuelling)):
 							self.add_reply("we are refuelling") 
+						else:
+							raise Exception("we have a %s" % str(self.commands.list[0]))
 				elif isinstance(command, CommandDoGetDirections):
 					self.do_get_directions()
 				elif isinstance(command, CommandRefuelling):
@@ -315,7 +319,17 @@ class TeamHelicopter(Team):
 		return False
 	
 	def do_get_directions(self):
-		self.add_reply("Here are the directions")
-		self.request(CommandRefuelling())
-
-		
+		s = []
+		l = [t for t in self.our_teams.list if isinstance(t, TeamInfantry)]
+		for team in l:
+			if team.get_exists():
+				gl = team.goals.get_pending_list()
+				if len(gl) > 0:
+					g = gl[0]
+					dist = team.get_distance(g.y, g.x) * CELL_RESOLUTION
+					dir_ = team.get_direction(g.y, g.x)
+					s.append("team %s is at %0.0f kilometers of the objective, direction %s." % (team.nato, dist, dir_[1]))
+				else:
+					s.append("team %s has nothing to do." % team.nato)
+		self.add_reply(", ".join(s))
+		self.commands.add(CommandRefuelling()) 

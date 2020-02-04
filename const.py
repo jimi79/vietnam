@@ -25,6 +25,7 @@ QUERY_ERR = 1 # key not authorized
 QUERY_NEXT = 0 # query not complete
 
 SIZE = 10
+CELL_RESOLUTION = 5
 
 COUNT_PLAYER_TEAMS = 2
 COUNT_NPC_TEAMS = 6
@@ -45,5 +46,5 @@ SIZE = 10
 RATIO_WATER = 0
 SPEED_FACTOR = 20 # 1 normal, 2 faster
 DEBUG = True
-COUNT_NPC_TEAMS = 20
+COUNT_NPC_TEAMS = 0
 #SUPERMAN = False

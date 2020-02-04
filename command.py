@@ -35,7 +35,7 @@ class CommandLook(Command):
 		super().__init__()
 		self.priority = 3
 
-class CommandGetDirection(Command):
+class CommandDoGetDirections(Command):
 	def __init__(self):
 		self.duration = (10, 2)
 		super().__init__()
@@ -107,7 +107,7 @@ class CommandAskGetDirections(Command):
 	def __init__(self):
 		self.duration = (5, None)
 		super().__init__()
-		self.priority = 2
+		self.priority = 4
 		
 class CommandRefuelling(Command):
 	def __init__(self):

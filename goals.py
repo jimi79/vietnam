@@ -26,3 +26,5 @@ class Goals():
 		self.add_random_goal(random_goals)
 		self.add_random_goal(random_end_goals)
 
+	def get_pending_list(self):
+		return [g for g in self.list if not g.done]
