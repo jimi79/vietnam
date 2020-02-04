@@ -1,5 +1,6 @@
-from const import *
 import json
+from const import *
+from team import *
 
 class Query():
 	def init(self):
@@ -27,15 +28,18 @@ class Query():
 				'values': 
 					{a.letter:
 						{
-						'text': 'Team %s' % a.nato, 'code': a.id
+							'text': 'Team %s' % a.nato,
+							'code': a.id,
 						} for a in self.teams.list
 					}
 				}
 
 		if len(self.query) == 1:
-			self.pos = {
-				'name': 'action', 
-				'values': 
+			team = self.teams.get_team_by_letter(self.query[0]['code'])
+			if isinstance(team, TeamInfantry): # will be TeamInfantry
+				self.pos = {
+					'name': 'action', 
+					'values': 
 					{
 						'l': {'text': 'look', 'code': COMMAND_LOOK},
 						't': {'text': 'status', 'code': COMMAND_STATUS},
@@ -45,9 +49,19 @@ class Query():
 						'M': {'text': 'move for 5 km', 'code': COMMAND_MOVE_ONCE}
 					}
 				}
+			elif isinstance(team, TeamHelicopter): # will be TeamInfantry
+				self.pos = {
+					'name': 'action', 
+					'values': 
+					{
+						'd': {'text': 'get direction', 'code': COMMAND_GET_DIRECTIONS},
+					}
+				} 
 
 		if len(self.query) == 2:
 			if self.query[-1]['code'] == COMMAND_LOOK:
+				self.end = True
+			if self.query[-1]['code'] == COMMAND_GET_DIRECTIONS:
 				self.end = True
 			if self.query[-1]['code'] == COMMAND_STATUS:
 				self.end = True

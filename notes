@@ -1,14 +1,118 @@
-display cursor on the query position, so we know what we are typing
-confirm when quitting
-display 'Q' as a way of quitting in the help
-find a way to have a better work thing, like faster if multiple ppl
-still think of using ncurses, without windows, and with a nice thing
-	log
-	log
-	log
-	[date] [a: team A, b: team B]
+apply -> add_request
+add_request at the higher level, so i can say if the guy is too busy to hear it (in a fight or dead or not here)
+if processed, then replies 'ack' or 'nack' with a reason
 
-	log
-	log
-	log
-	[date] team A [w: work, m: move]
+tick will call 
+	check_ext_event
+		that will also create command like fight (unless already in a fight)
+	and then process
+		if time elapsed of the command, do it
+			if fight: fight
+			if move: move done, etc
+		and replay it if auto reply
+
+when a reply occures, create a command that is reply, takes 15s +-5s to say, and a parameter that is the actual reply
+	will write to team.add_reply
+
+
+
+so we have
+request_from_player
+or
+request_from_event (is there a fight?)
+
+which will generate
+* nothing (like if dead), or if request is fight while there is already a fight
+* a timed reply (commandReply) (like we can't work bc there is no work here)
+* an insert or append to the todo list (commands will be renamed tasks), and a reply (like 'we are moving west')
+
+and tick, that do:
+* request_from_event
+* process request that are done because time has passed
+
+
+requests are still auto_repeated: move and fight. won't be repeated if not accomplished last time (bc nobody to fight, or border reached)
+
+
+remove the heritage (insert / append), it's just a property of the command. look will have insert set to true, while move insert to false.
+no action of any kind without a command, even just 'looking'. 
+looking is 'add_request', no reply bc i know it's quick, then add command Look, then once ticked, reply
+
+should i have a list of 'request', 'action', and 'replies'? it seems so. so i can say 'move here', and then 'move here', replies will be 'moving to', then 'moving to'
+i would have liked a request to cancel another though, bc it makes no sense for the team to replies two times 'move here'.
+i would say you can't have two requests at once, like look and move withtout waiting the answer. so i would say request cancel the last one
+and request is a 'commandrequest' in a way that there is some time before it's processed
+so that would be a command with a command in it, like 'commandRequest, delay 15, property command of type CommandMove etc'
+and replies should be only one by one, spaced by a minimum time interval? meaning that if last reply less than 15, then wait
+
+i need a scheme
+
+priorities, and everythg is a request/command, all the same. and also, we add a label, same as type, and we have an exclusion list, each request remove other request (that would be done with an external object, to not have somethg that makes no sense). basically, each object would provide a list of types it would cancel. like process, if isinstance is fight, then remove everythg. and that is done externally to the team object?
+maybe two types: movement and query. and a query adds up with another query, while movement cancel movement, and query of exact same type cancel query of exact same type.
+
+but a radio call, a fight, or a destination reached is an event like any other, with a priority, and may or may not generate a reply
+
+
+main 
+	map
+		const
+		goals
+			goal
+				tools
+					const
+				const
+	const
+	team
+		tools
+			const
+		command
+			tools
+				const
+			const 
+		reply
+		goal
+			tools
+				const
+			const
+	teams
+		team
+			tools
+				const
+			command
+				tools
+					const
+				const 
+			reply
+			goal
+				tools
+					const
+				const
+		command
+			tools
+				cosnt
+			const
+		const
+	goals
+		goal
+	query
+		const
+		tools
+			const
+
+
+
+
+
+
+
+command -> request
+all herits from request base
+a property insert or append
+fight is prority super high. once done, it removes everythg itself
+
+apply(request)
+tick
+	check_eternal_events
+	if time elapsed, exec request
+	
+TODO: prevent to do work on a tile that doesn't have work to be done. also, check if work is already done. it looks like i need a 'request for work' action, bc i need to check stuff. 

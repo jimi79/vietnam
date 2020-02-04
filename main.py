@@ -56,6 +56,7 @@ class Main():
 		self.map.place(ratio_forest = RATIO_FOREST, ratio_wonder = RATIO_WONDER, ratio_water = RATIO_WATER)
 		self.goals = Goals(self.map) # a list of places, and place on the map the first one to reach 
 		self.player_teams = Teams(count = COUNT_PLAYER_TEAMS, map_ = self.map, npc = False, goals = self.goals)
+		self.player_teams.append_heli(self.map)
 		self.npc_teams = Teams(count = COUNT_NPC_TEAMS, map_ = self.map, npc = True, goals = self.goals) 
 		self.player_teams.set_other_team(self.npc_teams)
 		self.npc_teams.set_other_team(self.player_teams)
@@ -148,8 +149,7 @@ class Main():
 	def log_goals(self):
 		if DEBUG:
 			for goal in self.goals.list:
-				self.add_log("%s at (%d, %d), done:%s, duration: %0.0f" % (goal.name, goal.y, goal.x, "True" if goal.done else "False", goal.duration))
-
+				self.add_log("%s at (%d, %d), done:%s, duration: %0.0f" % (goal.name, goal.y, goal.x, "True" if goal.done else "False", goal.duration)) 
 
 	def get_time(self):
 		d = (datetime.datetime.now() - self.initial_time).total_seconds()
@@ -170,6 +170,16 @@ class Main():
 		p = "player: %s" % ", ".join(self.player_teams.get_debug_infos())
 		n = "npc: %s" % ", ".join(self.npc_teams.get_debug_infos())
 		self.add_log("%s\n%s" % (p, n))
+	
+	def log_tasks(self):
+		s = []
+		s.append("Player's teams:")
+		for team in self.player_teams.list:
+			s.append("%s: %s" % (team.nato, team.commands.debug()))
+		s.append("NPC's teams:")
+		for team in self.npc_teams.list:
+			s.append("%s: %s" % (team.nato, team.commands.debug()))
+		self.add_log("\n".join(s)) 
 
 	def run(self, stdscr): 
 		self.init(stdscr) 
@@ -197,6 +207,8 @@ class Main():
 						self.log_status()
 					elif k == ord('3'):
 						self.log_locations()
+					elif k == ord('4'):
+						self.log_tasks()
 
 
 				if k == ord('Q'):

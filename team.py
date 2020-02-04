@@ -10,26 +10,91 @@ from goal import *
 nato = ['alpha', 'bravo', 'charly', 'delta', 'echo', 'fox-trot', 'hotel', 'india', 'juliet', 'kilo', 'lima', 'mike', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango', 'uniform', 'victor', 'wiskhey', 'x-ray', 'yankee', 'zulu']
 
 class Team():
-	def __init__(self, id_, count, map_, goals, y, x): 
-		self.count = count
+	def __init__(self, id_, map_): 
 		self.id = id_
 		self.map = map_
-		self.other_teams = None 
-		self.our_teams = None 
-		self.commands = [] # actions to do, [0] is the one being done
+		self.commands = Commands()
 		self.nato = nato.pop(0)
 		self.letter = self.nato[0]
+
 		self.replies = [] # list of messages returned by the team
+
+		self.other_teams = None 
+		self.our_teams = None 
 		self.npc = False
+
+	def get_direction(self, desty, destx):
+		y = self.y
+		x = self.x
+		angle = math.degrees(math.atan2(desty - y, destx - x))
+		sd = ["e", "se", "s", "sw", "w", "nw", "n", "ne"] 
+		return angle, sd[round(angle / 45) % 8]
+
+	def get_distance(self, desty, destx):
+		y = self.y
+		x = self.x
+		return math.sqrt(math.pow(abs(desty - y), 2) + math.pow(abs(destx - x), 2))
+
+	def add_reply(self, value):
+		if not self.npc:
+			reply = Reply(value, self.nato)
+			self.replies.append(reply)
+	
+	def dump_replies(self):
+		if self.get_alive():
+			r = copy.copy(self.replies)
+		else: 
+			r = []
+		self.replies = []
+		return r
+	
+class TeamInfantry(Team):
+	def __init__(self, id_, count, map_, goals, y, x): 
+		super().__init__(id_, map_)
 		self.goals = goals
 		self.y = y
 		self.x = x
 		self.exited = False
+		self.count = count 
 	
+	def tick(self): 
+		if not self.get_exists():
+			self.commands.reset()
+			return
+		self.handle_external_events() 
+	
+		if len(self.commands.list) > 0:
+			command = self.commands.list[0]
+			if command.when <= datetime.datetime.now():
+				self.commands.list.pop(0) 
+				if isinstance(command, CommandFight):
+					self.fight(command)
+					if len(self.get_ennemies_at_pos()) == 0:
+						command.auto_repeat = False
+						self.add_reply("we just had a fight, we killed %d peoples" % (command.killed))
+# no need to rewrite the command, bc it pops up as long as there are ennemies anyway
+				elif isinstance(command, CommandLook):
+					self.do_look()
+				elif isinstance(command, CommandStatus): 
+					self.add_reply(self.status())
+				elif isinstance(command, CommandMove) or isinstance(command, CommandMoveOnce):
+					if not self.do_move(command):
+						command.auto_repeat = False
+				elif isinstance(command, CommandPatrol):
+					self.do_patrol(command)
+				elif isinstance(command, CommandAskWork):
+					self.do_ask_work()
+				elif isinstance(command, CommandDoWork):
+					self.do_work(command)
+				else:
+					raise Exception("instance of %s not handled" % str(command))
+				if command.auto_repeat:
+					self.commands.add(command)
+
 	def get_alive(self):
 		return (self.count > 0)
 	
-	def get_here(self):
+	def get_exists(self):
 		return (not self.exited) and (self.count > 0)
 
 	def get_pos_from_direction(self, direction):
@@ -60,13 +125,13 @@ class Team():
 			if self.map.geo[y][x] != FOREST: # can't see an ennemy in the forest
 				if self.other_teams != None:
 					c = 0
-					c = sum([a.count for a in self.other_teams.list if a.x == x and a.y == y])
+					c = sum([a.count for a in self.other_teams.get_infrantry_list() if a.x == x and a.y == y])
 					if c > 0:
 						if c > 10:
 							items.append("lots of soldiers")
 						else:
 							items.append("some soldiers")
-				c = sum([a.count for a in self.our_teams.list if a.x == x and a.y == y and a.id != self.id and a.get_here()])
+				c = sum([a.count for a in self.our_teams.get_infrantry_list() if a.x == x and a.y == y and a.id != self.id and a.get_exists()])
 				if c > 0:
 					items.append("some fellows")
 
@@ -87,7 +152,7 @@ class Team():
 
 	def get_ennemies_at_pos(self, direction = "l"): 
 		y, x = self.get_pos_from_direction(direction)
-		teams = [team for team in self.other_teams.list if team.x == x and team.y == y and team.count > 0]
+		teams = [team for team in self.other_teams.get_infrantry_list() if team.x == x and team.y == y and team.count > 0]
 		return teams
 	
 	def look(self): 
@@ -100,7 +165,7 @@ class Team():
 			items.append("nothing")
 		return '. '.join(items)
 
-	def move(self, command):
+	def do_move(self, command):
 		direction = command.direction
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
 		x = self.x + (1 if "e" in direction else -1 if "w" in direction else 0)	
@@ -127,15 +192,14 @@ class Team():
 		self.x = x
 		return True
 
-	def pre_command_process(self):
+	def handle_external_events(self):
 		if len(self.get_ennemies_at_pos()) > 0: 
 			if not self.fighting():
-				self.apply(CommandFight())
+				self.commands.add(CommandFight())
 
 	def fight(self, command):
 		killed = random.randrange(0, int(self.count * 2))
 		teams = self.get_ennemies_at_pos()
-		#log("%s: we killed %d peoples, we have %d peoples left" % (self.nato, killed, self.count)) 
 		actually_killed = 0
 		for team in teams:
 			if killed == 0:
@@ -147,15 +211,13 @@ class Team():
 		command.killed = command.killed + actually_killed
 	
 	def fighting(self):
-		r = False
-		if len(self.commands) > 0:
-			r = isinstance(self.commands[0], CommandFight)
+		r = [c for c in self.commands.list if isinstance(c, CommandFight)]
+		r = len(r) > 0
 		return r
 
 	def get_goal_list(self):
 		l = []
 		for goal in self.goals.list:
-			#if goal.team_letter_ids_required == None or self.letter in goal.team_letter_ids_required:
 			l.append(goal)
 		s = []
 		a = 1
@@ -172,24 +234,8 @@ class Team():
 		y, x = location
 		return y == self.y and x == self.x 
 
-	def get_direction(self, desty, destx):
-		y = self.y
-		x = self.x
-		angle = math.degrees(math.atan2(desty - y, destx - x))
-		sd = ["e", "se", "s", "sw", "w", "nw", "n", "ne"] 
-		return angle, sd[round(angle / 45) % 8]
-
-	def get_distance(self, desty, destx):
-		y = self.y
-		x = self.x
-		return math.sqrt(math.pow(abs(desty - y), 2) + math.pow(abs(destx - x), 2))
-
-	def get_goals(self):
-		return self.get_goal_list()
-
 	def status(self):
 		s = "we have %d people left." % self.count
-		#s = s + " %s." % ("we are a support team" if self.letter != 'a' else "we are the working team")
 		return s 
 
 	def get_non_end_goal_list(self):
@@ -203,30 +249,25 @@ class Team():
 		else:
 			return None
 	
-	def ask_work(self):
-		goal = self.get_goal_at_pos()
-		if goal == None:
-			self.add_reply('no task to do here')
-		else:
-			if goal.done:
-				self.add_reply('that task is already completed')
-			else:
-				if isinstance(goal, EndGoal):
-					if len(self.get_non_end_goal_list()) > 0:
-						self.add_reply('we still have tasks to do')
-						return
-				self.apply(CommandDoWork(goal))
-				
+
+	def do_look(self):
+		self.add_reply(self.look())
+
+	def do_fight(self):
+		pass
+
 	def do_work(self, command):
 		if isinstance(command.goal, EndGoal):
 			self.exited = True
 			self.add_reply("we exited, bye")
 		else:
-			command.goal.done = True 
-			self.add_reply("%s is done" % command.goal.name)
+			if command.goal.done:
+				self.add_reply("%s was done by someone else" % command.goal.name)
+			else:
+				command.goal.done = True 
+				self.add_reply("%s is done" % command.goal.name)
 
 	def do_patrol(self, command):
-		log("a")
 		if self.x == command.x and self.y == command.y:
 			random.shuffle(command.locations)
 			self.y = command.locations[0][0]
@@ -235,91 +276,46 @@ class Team():
 			self.x = command.x
 			self.y = command.y
 
-	def tick(self): 
-		if not self.get_here():
-			self.commands = []
-			return
-		self.pre_command_process() 
-	
-		if len(self.commands) > 0:
-			command = self.commands[0]
-			if command.when <= datetime.datetime.now():
-				self.commands.pop(0) 
-				if isinstance(command, CommandFight):
-					self.fight(command)
-					if len(self.get_ennemies_at_pos()) == 0:
-						command.auto_repeat = False
-						self.add_reply("we just had a fight, we killed %d peoples" % (command.killed))
-# no need to rewrite the command, bc it pops up as long as there are ennemies anyway
-				else: 
-					if isinstance(command, CommandLook):
-						self.add_reply(self.look())
-					elif isinstance(command, CommandStatus): 
-						self.add_reply(self.status())
-					elif isinstance(command, CommandMove) or isinstance(command, CommandMoveOnce):
-						if not self.move(command):
-							command.auto_repeat = False
-					elif isinstance(command, CommandPatrol):
-						self.do_patrol(command)
-					elif isinstance(command, CommandAskWork):
-						self.ask_work()
-					elif isinstance(command, CommandDoWork):
-						self.do_work(command)
-					else:
-						raise Exception("instance of %s not handled" % str(command))
-				log("b %s" % ("t" if command.auto_repeat else "f"))
-				if command.auto_repeat:
-					log("there")
-					self.apply(command)
 
-	def apply_append(self, command):
-# we remove all pending command except the one who were inserted
-		log("here")
-		self.commands = [command for command in self.commands if not(isinstance(command, CommandQueued))] 
-		if len(self.commands) > 0:
-			t = max([command.when for command in self.commands])
+	def do_ask_work(self):
+		work = [g for g in self.goals.list if g.x == self.x and g.y == self.y]
+		if len(work) == 0:
+			self.add_reply('there is nothing to do here')
 		else:
-			t = datetime.datetime.now() 
-		command.when = t + datetime.timedelta(seconds = command.get_duration())
-		self.commands.append(command)
+			self.commands.add(CommandDoWork(work[0]))
 
-	def apply_insert(self, command):
-# we shift what we had
-		for a in self.commands:
-			a.when = a.when + datetime.timedelta(seconds = command.get_duration())
-# we add the new command
-		self.commands.insert(0, command) 
-		command.when = datetime.datetime.now() + datetime.timedelta(seconds = command.get_duration())
-
-	def apply(self, command): 
-# if a fight is requested, everythg else is cancel
-# if a fight is going on, then we ignore everythg else (included the command to fight)
-		if (self.fighting()):
-			return
-		if (self.exited):
-			return 
-		if isinstance(command, CommandFight):
-			self.commands = [command for command in self.commands if isinstance(command, CommandPatrol)]  # we remove all commands except patrol
-		if isinstance(command, CommandStop):
-			self.commands = [] 
-		if isinstance(command, CommandQueued): # fight included
-			self.apply_append(command)
-		if isinstance(command, CommandInsert):
-			self.apply_insert(command)
-		if DEBUG:
-			f = open("log_%s" % self.nato, "w")
-			for command in self.commands:
-				f.write("%s @ %s\n" % (str(command), command.when.strftime("%H:%M:%S")))
-
-	def add_reply(self, value):
-		if not self.npc:
-			reply = Reply(value, self.nato)
-			self.replies.append(reply)
+class TeamHelicopter(Team):
+#TODO in progress (nothing works for now)
+	def __init__(self, id_, map_):
+		super().__init__(id_, map_)
+		self.exited = False
 	
-	def dump_replies(self):
-		if self.get_alive():
-			r = copy.copy(self.replies)
-		else: 
-			r = []
-		self.replies = []
-		return r
+	def tick(self): 
+		if len(self.commands.list) > 0:
+			command = self.commands.list[0]
+			if command.when <= datetime.datetime.now():
+				self.commands.pop(0)
+				if isinstance(command, CommandAskGetDirections):
+					if len(self.commands[1:]) == 0:
+						self.request(CommandDoGetDirections())
+					else:
+						if (isinstance(self.commands[0], CommandDoGetDirections)):
+							self.add_reply("we are already on a reckon mission")
+						if (isinstance(self.commands[0], CommandRefuelling)):
+							self.add_reply("we are refuelling") 
+				elif isinstance(command, CommandDoGetDirections):
+					self.do_get_directions()
+				elif isinstance(command, CommandRefuelling):
+					self.add_reply("refuelling done") 
+	
+	def get_alive(self):
+		return True
+	
+	def fighting(self):
+		return False
+	
+	def do_get_directions(self):
+		self.add_reply("Here are the directions")
+		self.request(CommandRefuelling())
+
+		
