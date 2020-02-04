@@ -328,7 +328,10 @@ class TeamHelicopter(Team):
 					g = gl[0]
 					dist = team.get_distance(g.y, g.x) * CELL_RESOLUTION
 					dir_ = team.get_direction(g.y, g.x)
-					s.append("team %s is at %0.0f kilometers of the objective, direction %s." % (team.nato, dist, dir_[1]))
+					if dist < CELL_RESOLUTION:
+						s.append("team %s is at %0.0f kilometers of the objective." % (team.nato, dist, dir_[1]))
+					else:
+						s.append("team %s is at %0.0f kilometers of the objective, direction %s." % (team.nato, dist, dir_[1]))
 				else:
 					s.append("team %s has nothing to do." % team.nato)
 		self.add_reply(", ".join(s))

@@ -45,6 +45,6 @@ RATIO_WONDER = 0.2
 #SIZE = 10
 #RATIO_WATER = 0
 #SPEED_FACTOR = 20 # 1 normal, 2 faster
-#DEBUG = True
+DEBUG = True
 #COUNT_NPC_TEAMS = 0
 #SUPERMAN = False
