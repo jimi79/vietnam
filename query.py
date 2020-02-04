@@ -54,7 +54,7 @@ class Query():
 					'name': 'action', 
 					'values': 
 					{
-						'd': {'text': 'get direction', 'code': COMMAND_GET_DIRECTIONS},
+						'd': {'text': 'get directions', 'code': COMMAND_GET_DIRECTIONS},
 					}
 				} 
 

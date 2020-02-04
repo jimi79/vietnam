@@ -329,10 +329,10 @@ class TeamHelicopter(Team):
 					dist = team.get_distance(g.y, g.x) * CELL_RESOLUTION
 					dir_ = team.get_direction(g.y, g.x)
 					if dist < CELL_RESOLUTION:
-						s.append("team %s is at %0.0f kilometers of the objective." % (team.nato, dist, dir_[1]))
+						s.append("team %s is at %0.0f kilometers of the objective." % (team.nato, dist))
 					else:
 						s.append("team %s is at %0.0f kilometers of the objective, direction %s." % (team.nato, dist, dir_[1]))
 				else:
 					s.append("team %s has nothing to do." % team.nato)
-		self.add_reply(", ".join(s))
+		self.add_reply(" ".join(s))
 		self.commands.add(CommandRefuelling()) 
