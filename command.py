@@ -16,6 +16,8 @@ class Command():
 		self.blocking = False # if True, then won't accept any lower priority tasks
 		self.remove_similar = True # default behavior, we remove similar requests
 		self.can_be_removed = True # false if cannot be removed, like patrolling for a NPC
+		self.remove_group = []
+		self.group = None
 
 	def get_duration(self):
 		d = self.duration[0]
@@ -60,6 +62,8 @@ class CommandMove(Command):
 		self.direction = None
 		self.auto_repeat = True
 		self.priority = 1
+		self.remove_group = 'M'
+		self.group = 'M'
 
 class CommandMoveOnce(Command):
 	def __init__(self):
@@ -68,6 +72,8 @@ class CommandMoveOnce(Command):
 		self.direction = None
 		self.auto_repeat = False
 		self.priority = 1
+		self.remove_group = 'M'
+		self.group = 'M'
 
 class CommandAskWork(Command):
 	def __init__(self):
@@ -178,6 +184,13 @@ class Commands():
 			for i in range(len(self.list) - 1, -1, -1):
 				if isinstance(command, self.list[i].__class__):
 					self.remove_command(i) 
+
+		for group in  command.remove_group:
+			for i in range(len(self.list) - 1, -1, -1):
+				if command.group == group:
+					self.remove_command(i) 
+
+
 
 		rank = None
 		for i in range(0, len(self.list)):
