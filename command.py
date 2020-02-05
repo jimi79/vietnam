@@ -41,6 +41,12 @@ class CommandDoGetDirections(Command):
 		super().__init__()
 		self.priority = 3
 
+class CommandGoingBackToBase(Command):
+	def __init__(self):
+		self.duration = (120, 40)
+		super().__init__()
+		self.priority = 3 
+
 class CommandStatus(Command):
 	def __init__(self):
 		self.duration = (2, 1)

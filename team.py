@@ -133,11 +133,8 @@ class TeamInfantry(Team):
 							items.append("lots of soldiers")
 						else:
 							items.append("some soldiers")
-				c = sum([a.count for a in self.our_teams.get_infrantry_list() if a.x == x and a.y == y and a.id != self.id and a.get_exists()])
-				if c > 0:
-					items.append("some fellows")
-
-
+				for team in [a for a in self.our_teams.get_infrantry_list() if a.x == x and a.y == y and a.id != self.id and a.get_exists()]:
+					items.append("team %s" % team.nato)
 			for goal in self.goals.list:
 				if goal.x == x and goal.y == y:
 					items.append("goal %s" % goal.name)
@@ -190,7 +187,7 @@ class TeamInfantry(Team):
 			stop = True
 		elif isinstance(command, CommandMoveOnce):
 			self.add_reply("we are at the new location")
-			stop = True 
+			self.commands.add(CommandLook())
 		if stop:
 			self.commands.add(CommandLook())
 		else:
@@ -306,12 +303,16 @@ class TeamHelicopter(Team):
 					else:
 						if (isinstance(self.commands.list[0], CommandDoGetDirections)):
 							self.add_reply("we are already on a reckon mission")
+						elif (isinstance(self.commands.list[0], CommandGoingBackToBase)):
+							self.add_reply("we can't doing reckon now, not enough fuel")
 						elif (isinstance(self.commands.list[0], CommandRefuelling)):
-							self.add_reply("we are refuelling") 
+							self.add_reply("we are busy refuelling") 
 						else:
 							raise Exception("we have a %s" % str(self.commands.list[0]))
 				elif isinstance(command, CommandDoGetDirections):
 					self.do_get_directions()
+				elif isinstance(command, CommandGoingBackToBase):
+					self.going_back_to_base()
 				elif isinstance(command, CommandRefuelling):
 					self.add_reply("refuelling done") 
 	
@@ -337,5 +338,13 @@ class TeamHelicopter(Team):
 						s.append("team %s is at %0.0f kilometers of the objective, direction %s." % (team.nato, dist, dir_[1]))
 				else:
 					s.append("team %s has nothing to do." % team.nato)
+			else:
+				s.append("team %s was not spotted." % team.nato)
+		s.append("we're going back to the base")
 		self.add_reply(" ".join(s))
+		self.commands.add(CommandGoingBackToBase()) 
+
+	def going_back_to_base(self): 
+		self.add_reply("we are back to the base, refuelling now")
 		self.commands.add(CommandRefuelling()) 
+

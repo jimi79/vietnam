@@ -13,8 +13,13 @@ class Query():
 		self.init() 
 
 	def get_text(self):
-		txt = [item['text'] for item in self.query]
-		return ' '.join(txt)
+		txts = []
+		for txt in self.query:
+			if 'append' in txt:
+				txts.append(txt['text'] + txt['append'])
+			else:
+				txts.append(txt['text'])
+		return ' '.join(txts)
 
 	def get_help(self): 
 		values = self.pos['values']
@@ -30,6 +35,7 @@ class Query():
 						{
 							'text': 'team %s' % a.nato,
 							'code': a.id,
+							'append': ','
 						} for a in self.teams.list
 					}
 				}

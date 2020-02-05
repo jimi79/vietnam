@@ -132,15 +132,9 @@ class Main():
 			win.addstr("\n")
 		self.log_win.refresh() 
 
-	def add_log(self, text, title = None):
-#		if title == None:
-#			self.add_wrap(self.log_win, "  -- %s --" % self.get_time())
-#		else:
-#			self.add_wrap(self.log_win, "  -- %s, %s --" % (self.get_time(), title))
-		if title:
-			text = "%s - %s: %s" % (self.get_time(), title, text)
-		else:
-			text = "%s: %s" % (self.get_time(), text)
+	def add_log(self, text, shift = 0):
+		text = "%s: %s" % (self.get_time(), text)
+		text = ''.join([' ' for a in range(0, shift)]) + text
 		self.add_wrap(self.log_win, text) 
 
 	def log_goals(self):
@@ -226,6 +220,6 @@ class Main():
 					if state != QUERY_ERR: 
 						if state == QUERY_DONE:
 							self.player_teams.apply(query)
-							self.add_log('you: %s' % query.get_text())
+							self.add_log('you: %s' % query.get_text(), shift=2)
 							query.init()
 						self.update_query(query)
