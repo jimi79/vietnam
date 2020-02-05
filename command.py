@@ -31,25 +31,25 @@ class Command():
 
 class CommandLook(Command):
 	def __init__(self):
-		self.duration = (10, 2)
+		self.duration = (5, 2)
 		super().__init__()
 		self.priority = 3
 
 class CommandDoGetDirections(Command):
 	def __init__(self):
-		self.duration = (10, 2)
+		self.duration = (120, 40)
 		super().__init__()
 		self.priority = 3
 
 class CommandStatus(Command):
 	def __init__(self):
-		self.duration = (1, None)
+		self.duration = (2, 1)
 		super().__init__()
 		self.priority = 3
 
 class CommandMove(Command):
 	def __init__(self):
-		self.duration = (60, None)
+		self.duration = (60, 10)
 		super().__init__()
 		self.direction = None
 		self.auto_repeat = True
@@ -57,7 +57,7 @@ class CommandMove(Command):
 
 class CommandMoveOnce(Command):
 	def __init__(self):
-		self.duration = (60, None)
+		self.duration = (60, 10)
 		super().__init__()
 		self.direction = None
 		self.auto_repeat = False
@@ -78,7 +78,7 @@ class CommandDoWork(Command):
 
 class CommandFight(Command):
 	def __init__(self):
-		self.duration = (5, None)
+		self.duration = (5, 1)
 		super().__init__()
 		self.auto_repeat = True
 		self.killed = 0
@@ -88,7 +88,7 @@ class CommandFight(Command):
 
 class CommandStop(Command):
 	def __init__(self):
-		self.duration = (10, None)
+		self.duration = (2, 1)
 		super().__init__()
 		self.priority = 4 # not 5, because a fight can't be stopped
 
@@ -105,7 +105,7 @@ class CommandPatrol(Command):
 
 class CommandAskGetDirections(Command):
 	def __init__(self):
-		self.duration = (5, None)
+		self.duration = (5, 2)
 		super().__init__()
 		self.priority = 4
 		

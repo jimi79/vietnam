@@ -71,12 +71,12 @@ class Main():
 		self.npc_teams.tick()
 
 		for reply in self.get_replies():
-			self.add_log(reply.text, reply.team)
+			self.add_log("%s: %s" % (reply.team, reply.text))
 		a = self.get_all_teams_status()
 
 		end = False
 		if ALL_ALIVE_TEAMS_EXITED in a:
-			self.add_log('all alive units are safe. Press a key to exit')
+			self.add_log('All alive units are safe. Press a key to exit')
 			end = True
 
 		if end:
@@ -140,10 +140,14 @@ class Main():
 		self.log_win.refresh() 
 
 	def add_log(self, text, title = None):
-		if title == None:
-			self.add_wrap(self.log_win, "  -- %s --" % self.get_time())
+#		if title == None:
+#			self.add_wrap(self.log_win, "  -- %s --" % self.get_time())
+#		else:
+#			self.add_wrap(self.log_win, "  -- %s, %s --" % (self.get_time(), title))
+		if title:
+			text = "%s - %s: %s" % (self.get_time(), title, text)
 		else:
-			self.add_wrap(self.log_win, "  -- %s, %s --" % (self.get_time(), title))
+			text = "%s: %s" % (self.get_time(), text)
 		self.add_wrap(self.log_win, text) 
 
 	def log_goals(self):
@@ -229,6 +233,6 @@ class Main():
 					if state != QUERY_ERR: 
 						if state == QUERY_DONE:
 							self.player_teams.apply(query)
-							self.add_log(query.get_text())
+							self.add_log('you: %s' % query.get_text())
 							query.init()
 						self.update_query(query)

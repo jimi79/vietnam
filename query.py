@@ -28,7 +28,7 @@ class Query():
 				'values': 
 					{a.letter:
 						{
-							'text': 'Team %s' % a.nato,
+							'text': 'team %s' % a.nato,
 							'code': a.id,
 						} for a in self.teams.list
 					}
@@ -45,8 +45,8 @@ class Query():
 						't': {'text': 'status', 'code': COMMAND_STATUS},
 						's': {'text': 'stop', 'code': COMMAND_STOP},
 						'w': {'text': 'work', 'code': COMMAND_WORK},
-						'm': {'text': 'move', 'code': COMMAND_MOVE},
-						'M': {'text': 'move for %0.0f km' % CELL_RESOLUTION, 'code': COMMAND_MOVE_ONCE}
+						'M': {'text': 'move', 'code': COMMAND_MOVE},
+						'm': {'text': 'move for %0.0f km' % CELL_RESOLUTION, 'code': COMMAND_MOVE_ONCE}
 					}
 				}
 			elif isinstance(team, TeamHelicopter): # will be TeamInfantry

@@ -108,7 +108,7 @@ class TeamInfantry(Team):
 		items = []
 		if direction != "l":
 			y, x = self.get_pos_from_direction(direction)
-			s_direction = direction
+			s_direction = direction.upper()
 		else:
 			y = self.y
 			x = self.x
@@ -149,7 +149,7 @@ class TeamInfantry(Team):
 				s = "%s and %s" % (", ".join(items[0:-1]), items[-1])
 			else:
 				s = items[0]
-			txt = "%s: %s" % (s_direction, s)
+			txt = "%s, %s" % (s_direction, s)
 		return txt
 
 	def get_ennemies_at_pos(self, direction = "l"): 
@@ -299,6 +299,7 @@ class TeamHelicopter(Team):
 				self.commands.list.pop(0)
 				if isinstance(command, CommandAskGetDirections):
 					if len(self.commands.list) == 0:
+						self.add_reply('we are taking off')
 						self.commands.add(CommandDoGetDirections())
 					else:
 						if (isinstance(self.commands.list[0], CommandDoGetDirections)):
