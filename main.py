@@ -117,15 +117,8 @@ class Main():
 		self.query_win.refresh()
 	
 	def get_help(self, query):
-		self.add_log('\n'.join(query.get_help()))
-		self.query_win.refresh()
-
+		self.add_wrap(self.log_win, ', '.join(query.get_help())) 
 	
-	def update_time(self):
-		self.time_win.clear;
-		self.time_win.addstr(0, 0, self.get_time())
-		self.time_win.refresh()
-
 	def add_wrap(self, win, text):
 		words = text.split(" ")
 		maxy, maxx = win.getmaxyx()

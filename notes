@@ -116,3 +116,7 @@ tick
 	if time elapsed, exec request
 	
 TODO: prevent to do work on a tile that doesn't have work to be done. also, check if work is already done. it looks like i need a 'request for work' action, bc i need to check stuff. 
+
+
+
+add a flag to each team to say 'look after u stop' true/false?

@@ -171,28 +171,32 @@ class TeamInfantry(Team):
 		direction = command.direction
 		y = self.y + (1 if "s" in direction else -1 if "n" in direction else 0)	
 		x = self.x + (1 if "e" in direction else -1 if "w" in direction else 0)	
+		stop = False
 		if y >= SIZE:
 			self.add_reply("we reached a border")
-			return False
-		if y < 0:
+			stop = True
+		elif y < 0:
 			self.add_reply("we reached a border")
-			return False
-		if x >= SIZE:
+			stop = True
+		elif x >= SIZE:
 			self.add_reply("we reached a border")
-			return False
-		if x < 0:
+			stop = True
+		elif x < 0:
 			self.add_reply("we reached a border")
-			return False
+			stop = True
 # if end up on water, then also refuse
-		if self.map.geo[y][x] == WATER:
+		elif self.map.geo[y][x] == WATER:
 			self.add_reply("we can't go pass that water")
-			return False
+			stop = True
+		elif isinstance(command, CommandMoveOnce):
+			self.add_reply("we are at the new location")
+			stop = True 
+		if stop:
+			self.commands.add(CommandLook())
 		else:
-			if isinstance(command, CommandMoveOnce):
-				self.add_reply("we are at the new location")
-		self.y = y
-		self.x = x
-		return True
+			self.y = y
+			self.x = x
+		return not stop
 
 	def handle_external_events(self):
 		if len(self.get_ennemies_at_pos()) > 0: 
@@ -278,7 +282,6 @@ class TeamInfantry(Team):
 			self.x = command.x
 			self.y = command.y
 
-
 	def do_ask_work(self):
 		work = [g for g in self.goals.list if g.x == self.x and g.y == self.y]
 		if len(work) == 0:
@@ -287,7 +290,6 @@ class TeamInfantry(Team):
 			self.commands.add(CommandDoWork(work[0]))
 
 class TeamHelicopter(Team):
-#TODO in progress (nothing works for now)
 	def __init__(self, id_):
 		super().__init__(id_)
 		self.exited = False
