@@ -161,8 +161,8 @@ class TeamInfantry(Team):
 			if item != None:
 				items.append(item) 
 		if len(items) == 0:
-			items.append("nothing")
-		return '. '.join(items)
+			items.append("nothing around us.")
+		return 'we see %s.' % ('. '.join(items))
 
 	def do_move(self, command):
 		direction = command.direction
@@ -170,23 +170,23 @@ class TeamInfantry(Team):
 		x = self.x + (1 if "e" in direction else -1 if "w" in direction else 0)	
 		stop = False
 		if y >= SIZE:
-			self.add_reply("we reached a border")
+			self.add_reply("we reached a border.")
 			stop = True
 		elif y < 0:
-			self.add_reply("we reached a border")
+			self.add_reply("we reached a border.")
 			stop = True
 		elif x >= SIZE:
-			self.add_reply("we reached a border")
+			self.add_reply("we reached a border.")
 			stop = True
 		elif x < 0:
-			self.add_reply("we reached a border")
+			self.add_reply("we reached a border.")
 			stop = True
 # if end up on water, then also refuse
 		elif self.map.geo[y][x] == WATER:
-			self.add_reply("we can't go pass that water")
+			self.add_reply("we can't go pass that water.")
 			stop = True
 		elif isinstance(command, CommandMoveOnce):
-			self.add_reply("we are at the new location")
+			self.add_reply("we are at the new location.")
 			self.commands.add(CommandLook())
 		if stop:
 			self.commands.add(CommandLook())
@@ -238,8 +238,19 @@ class TeamInfantry(Team):
 		return y == self.y and x == self.x 
 
 	def status(self):
-		s = "we have %d people left." % self.count
-		return s 
+		s = ["we are %d people." % self.count]
+		if len(self.commands.list) > 0: 
+			if isinstance(self.commands.list[0], CommandLook):
+				s.append('we are looking around.')
+
+			elif isinstance(self.commands.list[0], CommandMove) or isinstance(self.commands.list[0], CommandMoveOnce):
+				s.append('we are moving.')
+			elif isinstance(self.commands.list[0], CommandDoWork):
+				if isinstance(self.commands.list[0].goal, EndGoal):	
+					s.append('we are going base.')
+				else:
+					s.append('we are working.')
+		return ' '.join(s)
 
 	def get_non_end_goal_list(self):
 		goals = [goal for goal in self.goals.list if not goal.done and not(isinstance(goal, EndGoal))]
@@ -298,15 +309,15 @@ class TeamHelicopter(Team):
 				self.commands.list.pop(0)
 				if isinstance(command, CommandAskGetDirections):
 					if len(self.commands.list) == 0:
-						self.add_reply('we are taking off')
+						self.add_reply('we are taking off.')
 						self.commands.add(CommandDoGetDirections())
 					else:
 						if (isinstance(self.commands.list[0], CommandDoGetDirections)):
-							self.add_reply("we are already on a reckon mission")
+							self.add_reply("we are already on a reckon mission.")
 						elif (isinstance(self.commands.list[0], CommandGoingBackToBase)):
-							self.add_reply("we can't doing reckon now, not enough fuel")
+							self.add_reply("we can't doing reckon now, not enough fuel.")
 						elif (isinstance(self.commands.list[0], CommandRefuelling)):
-							self.add_reply("we are busy refuelling") 
+							self.add_reply("we are busy refuelling.") 
 						else:
 							raise Exception("we have a %s" % str(self.commands.list[0]))
 				elif isinstance(command, CommandDoGetDirections):
@@ -314,7 +325,7 @@ class TeamHelicopter(Team):
 				elif isinstance(command, CommandGoingBackToBase):
 					self.going_back_to_base()
 				elif isinstance(command, CommandRefuelling):
-					self.add_reply("refuelling done") 
+					self.add_reply("refuelling done.") 
 	
 	def get_alive(self):
 		return True
@@ -333,18 +344,18 @@ class TeamHelicopter(Team):
 					dist = team.get_distance(g.y, g.x) * CELL_RESOLUTION
 					dir_ = team.get_direction(g.y, g.x)
 					if dist < CELL_RESOLUTION:
-						s.append("team %s is near the objective." % (team.nato, dist))
+						s.append("team %s is near the objective." % (team.nato))
 					else:
 						s.append("team %s is at %0.0f kilometers of the objective, direction %s." % (team.nato, dist, dir_[1]))
 				else:
 					s.append("team %s has nothing to do." % team.nato)
 			else:
 				s.append("team %s was not spotted." % team.nato)
-		s.append("we're going back to the base")
+		s.append("we're going back to the base.")
 		self.add_reply(" ".join(s))
 		self.commands.add(CommandGoingBackToBase()) 
 
 	def going_back_to_base(self): 
-		self.add_reply("we are back to the base, refuelling now")
+		self.add_reply("we are back to the base, refuelling now.")
 		self.commands.add(CommandRefuelling()) 
 

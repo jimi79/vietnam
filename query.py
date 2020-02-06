@@ -15,7 +15,7 @@ class Query():
 	def get_text(self):
 		txts = []
 		for txt in self.query:
-			if 'append' in txt:
+			if 'append' in txt.keys():
 				txts.append(txt['text'] + txt['append'])
 			else:
 				txts.append(txt['text'])
@@ -96,11 +96,7 @@ class Query():
 	def test_key(self, key): 
 		if not self.end:
 			if key in self.pos['values'].keys():
-				self.query.append(
-					{
-						'code': self.pos['values'][key]['code'],
-						'text': self.pos['values'][key]['text']
-					})
+				self.query.append( self.pos['values'][key])
 				self.next_query()
 				if self.end:
 					return QUERY_DONE
