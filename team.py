@@ -26,7 +26,7 @@ class Team():
 		y = self.y
 		x = self.x
 		angle = math.degrees(math.atan2(desty - y, destx - x))
-		sd = ["e", "se", "s", "sw", "w", "nw", "n", "ne"] 
+		sd = ["east", "south eath", "south", "south west", "west", "north west", "north", "north east"] 
 		return angle, sd[round(angle / 45) % 8]
 
 	def get_distance(self, desty, destx):
@@ -146,7 +146,7 @@ class TeamInfantry(Team):
 				s = "%s and %s" % (", ".join(items[0:-1]), items[-1])
 			else:
 				s = items[0]
-			txt = "%s, %s" % (s_direction, s)
+			txt = "%s: %s" % (s_direction, s)
 		return txt
 
 	def get_ennemies_at_pos(self, direction = "l"): 
@@ -162,7 +162,7 @@ class TeamInfantry(Team):
 				items.append(item) 
 		if len(items) == 0:
 			items.append("nothing around us.")
-		return 'we see %s.' % ('. '.join(items))
+		return 'we see: %s.' % ('. '.join(items))
 
 	def do_move(self, command):
 		direction = command.direction
