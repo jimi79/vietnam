@@ -346,7 +346,7 @@ class TeamHelicopter(Team):
 						dir_ = team.get_direction(g.y, g.x)
 						goal_name = 'exit point' if isinstance(g, EndGoal) else 'the objective "%s"' % g.name
 						if dist < CELL_RESOLUTION:
-							s2.append("close to %s." % (goal_name))
+							s2.append("close to %s" % (goal_name))
 						else:
 							s2.append("at %0.0f kilometers of %s, direction %s" % (dist, goal_name, dir_[1]))
 					s.append("team %s is %s." % (team.nato, ', '.join(s2)))
