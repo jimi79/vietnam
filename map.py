@@ -129,8 +129,11 @@ class Map_():
 		self.place_wonder(ratio_wonder)
 
 	def get_goal_location(self):
-		random.shuffle(self.place_for['goal'])
-		return self.place_for['goal'].pop()
+		if len(self.place_for['goal']) > 0:
+			random.shuffle(self.place_for['goal'])
+			return self.place_for['goal'].pop()
+		else:
+			return (-1, -1)
 
 	def get_team_player_location(self):
 		random.shuffle(self.place_for['player'])

@@ -26,7 +26,7 @@ class Team():
 		y = self.y
 		x = self.x
 		angle = math.degrees(math.atan2(desty - y, destx - x))
-		sd = ["east", "south eath", "south", "south west", "west", "north west", "north", "north east"] 
+		sd = ["east", "south east", "south", "south west", "west", "north west", "north", "north east"] 
 		return angle, sd[round(angle / 45) % 8]
 
 	def get_distance(self, desty, destx):
@@ -161,7 +161,7 @@ class TeamInfantry(Team):
 			if item != None:
 				items.append(item) 
 		if len(items) == 0:
-			items.append("nothing around us.")
+			items.append("nothing around us")
 		return 'we see: %s.' % ('. '.join(items))
 
 	def do_move(self, command):
@@ -340,19 +340,23 @@ class TeamHelicopter(Team):
 			if team.get_exists():
 				gl = team.goals.get_pending_list()
 				if len(gl) > 0:
-					g = gl[0]
-					dist = team.get_distance(g.y, g.x) * CELL_RESOLUTION
-					dir_ = team.get_direction(g.y, g.x)
-					if dist < CELL_RESOLUTION:
-						s.append("team %s is near the objective." % (team.nato))
-					else:
-						s.append("team %s is at %0.0f kilometers of the objective, direction %s." % (team.nato, dist, dir_[1]))
+					s2 = []
+					for g in gl:
+						dist = team.get_distance(g.y, g.x) * CELL_RESOLUTION
+						dir_ = team.get_direction(g.y, g.x)
+						goal_name = 'exit point' if isinstance(g, EndGoal) else 'the objective "%s"' % g.name
+						if dist < CELL_RESOLUTION:
+							s2.append("close to %s." % (goal_name))
+						else:
+							s2.append("at %0.0f kilometers of %s, direction %s" % (dist, goal_name, dir_[1]))
+					s.append("team %s is %s." % (team.nato, ', '.join(s2)))
 				else:
 					s.append("team %s has nothing to do." % team.nato)
 			else:
 				s.append("team %s was not spotted." % team.nato)
 		s.append("we're going back to the base.")
-		self.add_reply(" ".join(s))
+		for a in s:
+			self.add_reply(a)
 		self.commands.add(CommandGoingBackToBase()) 
 
 	def going_back_to_base(self): 
