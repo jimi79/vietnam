@@ -70,7 +70,7 @@ class TeamInfantry(Team):
 					self.fight(command)
 					if len(self.get_ennemies_at_pos()) == 0:
 						command.auto_repeat = False
-						self.add_reply("we just had a fight, we killed %d peoples" % (command.killed))
+						self.add_reply("we just had a fight, we killed %d peoples, and lost %d peoples" % (command.killed, command.count_before - self.count))
 # no need to rewrite the command, bc it pops up as long as there are ennemies anyway
 				elif isinstance(command, CommandStop):
 					self.commands.reset()
@@ -129,10 +129,11 @@ class TeamInfantry(Team):
 					c = 0
 					c = sum([a.count for a in self.other_teams.get_infrantry_list() if a.x == x and a.y == y])
 					if c > 0:
-						if c > 10:
-							items.append("lots of soldiers")
+						if c < 5:
+							r = 5
 						else:
-							items.append("some soldiers")
+							r = round(c / 5, 0) * 5
+						items.append("around %d soldiers" % (round(c, -1)))
 				for team in [a for a in self.our_teams.get_infrantry_list() if a.x == x and a.y == y and a.id != self.id and a.get_exists()]:
 					items.append("team %s" % team.nato)
 			for goal in self.goals.list:
@@ -198,10 +199,10 @@ class TeamInfantry(Team):
 	def handle_external_events(self):
 		if len(self.get_ennemies_at_pos()) > 0: 
 			if not self.fighting():
-				self.commands.add(CommandFight())
+				self.commands.add(CommandFight(self.count))
 
 	def fight(self, command):
-		killed = random.randrange(0, int(self.count * 2))
+		killed = random.randrange(0, int(self.count))
 		teams = self.get_ennemies_at_pos()
 		actually_killed = 0
 		for team in teams:
@@ -263,12 +264,8 @@ class TeamInfantry(Team):
 		else:
 			return None
 	
-
 	def do_look(self):
 		self.add_reply(self.look())
-
-	def do_fight(self):
-		pass
 
 	def do_work(self, command):
 		if isinstance(command.goal, EndGoal):

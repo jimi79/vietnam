@@ -29,7 +29,9 @@ class Command():
 		return d
 
 	def rand(self, delta):
-		return (random.randrange(1, 1 + delta)) * (random.randrange(0, 2) * 2 - 1)
+		c = (random.randrange(1, 1 + delta)) * (random.randrange(0, 2) * 2 - 1)
+		c = max(1, c)
+		return c
 
 class CommandLook(Command):
 	def __init__(self):
@@ -89,7 +91,7 @@ class CommandDoWork(Command):
 		self.priority = 1
 
 class CommandFight(Command):
-	def __init__(self):
+	def __init__(self, count_before):
 		self.duration = (5, 1)
 		super().__init__()
 		self.auto_repeat = True
@@ -97,6 +99,7 @@ class CommandFight(Command):
 		self.priority = 5
 		self.remove_lower = True
 		self.blocking = True
+		self.count_before = count_before
 
 class CommandStop(Command):
 	def __init__(self):

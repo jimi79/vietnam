@@ -15,10 +15,18 @@ class Teams():
 		team.map = map_
 		self.list.append(team) 
 
+	def rand(self, params):
+		diff = random.randrange(0, params[1])
+		val = params[0] - params[1] // 2 + diff
+		return val
+
 	def __init__(self, count, map_, npc, goals):
 		self.list = []
 		for i in range(0, count):
-			members = random.randrange(5, 15)
+			if npc:
+				members = self.rand(NPC_TEAMS_AVG_SIZE)
+			else:
+				members = self.rand(PLAYER_TEAMS_AVG_SIZE)
 			if not npc:
 				if SUPERMAN:
 					members = 100
