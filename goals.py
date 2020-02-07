@@ -3,10 +3,9 @@ from goal import *
 random_goals = [
 	MiddleGoal('build a bridge for our vehicles', 4 * 60),
 	MiddleGoal('destroy an ammunation depot', 1 * 60),
-	MiddleGoal('give weapons to a local population', 2 * 60),
 	MiddleGoal('massacre a village', 2 * 60),
-	MiddleGoal('reckon the best place to spread agent orange', 2 * 60),
-	MiddleGoal('torture innocents', 2 * 60),
+	MiddleGoal('reckon and find a target to spread agent orange', 2 * 60),
+	MiddleGoal('torture villager to get vietcongs whereabouts', 2 * 60),
 	]
 
 random_end_goals = [
