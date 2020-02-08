@@ -14,7 +14,7 @@ from term import *
 class Main():
 
 	def confirm(self, stdscr): 
-		update_status('confirm closing (y/n)')
+		self.term.update_query('confirm closing (y/n)')
 		while True:
 			curses.cbreak() #nocbreak to cancel
 			a = stdscr.getkey()
