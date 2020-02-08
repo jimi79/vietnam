@@ -1,7 +1,7 @@
 This is a game. A very approximate simulation of the vietnam war, only in text.
 The screen is separated in two zones: 
-  top: log of radio
-  bottom: commands sent to your teams
+* top: log of radio exchanges
+* bottom: commands sent to your teams
   
 # Teams
 You have 4 teams:
@@ -10,18 +10,12 @@ You have 4 teams:
   Infantry teams are dropped randomly (let's say they were parachuted) on a field.
 
 # What they can do:
-* look to look around
-they will tell you what they see in 8 directions: north, north east, east, south east, south, south-west, west, north-west
-* status
-they will tell you the number of ppl alive in the team (randomly attributed at start), and if they are doing somethg at the moment
-* move
-then you give them a direction
-* work
-if there is somethg to be done here, any of the team can do it, unless some other team is already working on it.
-* stop
-stop what they are doing
-* move for 5 km
-move for a short distance. easier to handle when u're commanding than the other move instruction, which instructs them to move until they can't continue.
+* *look* they will tell you what they see in 8 directions: north, north east, east, south east, south, south-west, west, north-west
+* *status* they will tell you the number of ppl alive in the team (randomly attributed at start), and if they are doing somethg at the moment
+* *move* then you give them a direction
+* *work* if there is somethg to be done here, any of the team can do it, unless some other team is already working on it.
+* *stop* stop what they are doing
+* *move for 5 km* move for a short distance. easier to handle when u're commanding than the other move instruction, which instructs them to move until they can't continue.
 
 # what the Helicopter can do:
 * get directions / reckon
@@ -40,9 +34,11 @@ For ex, if you press tab a start, the game will add in the log the list of the t
 press the team name, and the command
 if the command is moving, then also give the direction, using the keys like so
 
+<pre>
 q w e      q is north-west, w is north, e is north-east
 a   d      a is west, d is east
 z x c      z is south-weast, x is south, c is south-east
+</pre>
 ## teams commands
 the team keep a list of tasks to do.
 *look* and *status* will become the first task when requested. it will delay other tasks.
@@ -74,21 +70,37 @@ also something good to know: your teams can't see neither ennemies or any other 
 
 **in bold, pressed key**
 **tab**
+
 day 1 00:11: a: team alpha, b: team bravo, c: team charly, d: team delta
+
 **a, tab**
+
 day 1 02:20: l: look, t: status, s: stop, w: work, M: move, m: move for 5 km
+
 **t**
+
   day 1 04:26: you: team alpha, status
+  
 day 1 05:16: alpha: we are 22 people.
+
 **al**
+
   day 1 05:45: you: team alpha, look
+  
 day 1 06:35: alpha: we see: NE: some water. SE: around 10 soldiers. S: some water. NW: some water.
+
 **amd**
+
   day 1 09:59: you: team alpha, move for 5 km east
+  
 **at**
+
   day 1 11:21: you: team alpha, status
+  
 day 1 12:12: alpha: we are 22 people. we are moving.
+
 day 1 13:02: alpha: we are at the new location.
+
 *the look command is automatically executed after a team stops moving*
 day 1 13:53: alpha: we see: N: some water. SE: a village. SW: some water.
 
@@ -104,10 +116,12 @@ You may have a report at the end of the fight, but only if it's win by your team
 ennemies are placed randomly, and they can move around their initial position at very random moments (but at least one hour to go from one place to another)
 ennemies won't follow you at any point, they will just patrol around and get into a fight if you happen to be at the same place as they are.
 if u want to play it safe:
+
 * have multiples teams of yours at one point
 but it's not easy because: 
 ** you need to know where they are one to each other
 ** they won't have the same walking speed
 * avoid forests
 * look very often
+
 a ennemy cannot move more than three cells in total, so if you see it (meaning it's one cell away), you can move two cells away from it, it won't reach you in any case.
