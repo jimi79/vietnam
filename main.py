@@ -9,49 +9,18 @@ from teams import *
 from goals import *
 from query import *
 from fight import *
+from term import *
 
 class Main():
 
 	def confirm(self, stdscr): 
-		self.query_win.clear()
-		self.query_win.addstr('confirm closing (y/n)')
-		self.query_win.refresh() 
+		update_status('confirm closing (y/n)')
 		while True:
 			curses.cbreak() #nocbreak to cancel
 			a = stdscr.getkey()
 			if a == 'y' or a == 'n':
 				break
 		return a == 'y' 
-
-	def init_curses(self):
-		curses.initscr()
-		curses.start_color()
-		#curses.use_default_colors()
-		#curses.curs_set(0)
-		#curses.cbreak()
-		curses.halfdelay(10) #nocbreak to cancel
-		curses.init_pair(1, 0, curses.COLOR_GREEN)
-		curses.init_pair(2, 0, curses.COLOR_BLUE)
-
-	def init_windows(self, stdscr):
-		self.init_curses()
-		y, x = stdscr.getmaxyx()
-		self.query_win = curses.newwin(1, x, y - 2, 0)
-		self.log_win = curses.newwin(y - 2, x, 0, 0)
-		self.log_win.scrollok(True)
-		self.old_y, self.old_x = (y, x)
-	
-	def resize_windows(self, stdscr):
-		y, x = stdscr.getmaxyx()
-		if y != self.old_y or x != self.old_x:
-			self.old_y = y
-			self.old_x = x
-			self.query_win.resize(1, x)
-			self.query_win.mvwin(y - 2, 0)
-			self.log_win.resize(y - 2, x)
-			self.log_win.mvwin(0, 0)
-			self.query_win.refresh()
-			self.log_win.refresh()
 
 	def init_game(self):
 		self.map = Map_()
@@ -62,29 +31,26 @@ class Main():
 		self.npc_teams = Teams(count = COUNT_NPC_TEAMS, map_ = self.map, npc = True, goals = self.goals) 
 		self.player_teams.set_other_team(self.npc_teams)
 		self.npc_teams.set_other_team(self.player_teams)
-		self.initial_time = datetime.datetime.now()
-		self.last_fight_time = datetime.datetime.now() # should be in Fight object, and that object should be instanciated from the beginning
+		self.timed_fight = TimedFight()
 
 	def init(self, stdscr):
-		self.init_windows(stdscr)
+		self.term = Term(stdscr)
 		self.init_game()
 
 	def tick(self, stdscr):
-		if self.last_fight_time + datetime.timedelta(seconds = 10 / SPEED_FACTOR) < datetime.datetime.now(): # every 10 minutes in game
-			self.last_fight_time = datetime.datetime.now()
-			Fight(self.map, self.player_teams, self.npc_teams).run() # will also handle the command
+		self.timed_fight.check(self.map, self.player_teams, self.npc_teams)
 
 		self.player_teams.tick()
 		self.npc_teams.tick()
 
 
 		for reply in self.get_replies():
-			self.add_log("%s: %s" % (reply.team, reply.text))
+			self.term.add_log("%s: %s" % (reply.team, reply.text))
 		a = self.get_all_teams_status()
 
 		end = False
 		if ALL_ALIVE_TEAMS_EXITED in a:
-			self.add_log('All alive units are safe. Press a key to exit')
+			self.term.add_log('All alive units are safe. Press a key to exit')
 			end = True
 
 		if end:
@@ -120,55 +86,27 @@ class Main():
 		return self.player_teams.get_replies()
 
 	def update_query(self, query):
-		self.query_win.clear()
-		self.query_win.addstr(query.get_text()) 
-		self.query_win.refresh()
-	
+		self.term.update_query(query.get_text())
+
 	def get_help(self, query):
-		self.add_wrap(self.log_win, ', '.join(query.get_help())) 
+		self.term.add_log(', '.join(query.get_help())) 
 	
-	def add_wrap(self, win, text):
-		words = text.split(" ")
-		maxy, maxx = win.getmaxyx()
-		for word in words:
-			y, x = win.getyx()
-			if len(word) + x > maxx:
-				win.addstr("\n")
-			win.addstr("%s " % word)
-		y, x = win.getyx()
-		if x != 0:
-			win.addstr("\n")
-		self.log_win.refresh() 
-
-	def add_log(self, text, shift = 0):
-		text = "%s: %s" % (self.get_time(), text)
-		text = ''.join([' ' for a in range(0, shift)]) + text
-		self.add_wrap(self.log_win, text) 
-
 	def log_goals(self):
 		if DEBUG:
 			for goal in self.goals.list:
-				self.add_log("%s at (%d, %d), done:%s, duration: %0.0f" % (goal.name, goal.y, goal.x, "True" if goal.done else "False", goal.duration)) 
-
-	def get_time(self):
-		d = (datetime.datetime.now() - self.initial_time).total_seconds()
-		#d = d / 10
-		d = d * SPEED_FACTOR
-		day = d // (24 * 60)
-		d = d % (24 * 60) 
-		return "day %d %02d:%02d" % (day + 1, d // 60, d % 60)
+				self.term.add_log("%s at (%d, %d), done:%s, duration: %0.0f" % (goal.name, goal.y, goal.x, "True" if goal.done else "False", goal.duration)) 
 
 	def get_all_teams_status(self):
 		return self.player_teams.get_all_teams_status()
 
 	def log_status(self):
 		a = self.get_all_teams_status()
-		self.add_log(", ".join(a))
+		self.term.add_log(", ".join(a))
 	
 	def log_locations(self):
 		p = "player: %s" % ", ".join(self.player_teams.get_debug_infos())
 		n = "npc: %s" % ", ".join(self.npc_teams.get_debug_infos())
-		self.add_log("%s\n%s" % (p, n))
+		self.term.add_log("%s\n%s" % (p, n))
 	
 	def log_tasks(self):
 		s = []
@@ -178,7 +116,7 @@ class Main():
 		s.append("NPC's teams:")
 		for team in self.npc_teams.list:
 			s.append("%s: %s" % (team.nato, team.commands.debug()))
-		self.add_log("\n".join(s)) 
+		self.term.add_log("\n".join(s)) 
 
 	def run(self, stdscr): 
 		self.init(stdscr) 
@@ -190,12 +128,14 @@ class Main():
 		old_time = datetime.datetime.now()
 		while True:
 			#self.update_time()
+
+# to avoid tick every time a key is pressed
 			time = datetime.datetime.now()
 			if (time - old_time).total_seconds() > 1: 
 				if not self.tick(stdscr):
 					break
 				old_time = time 
-				self.resize_windows(stdscr)
+			self.term.resize_windows(stdscr)
 
 			k = self.get_key(stdscr)
 			if k != None:
@@ -209,7 +149,7 @@ class Main():
 					elif k == ord('4'):
 						self.log_tasks() 
 					elif k == ord('5'):
-						self.print_map(self.log_win) 
+						self.print_map(self.term.log_win) 
 
 				if k == ord('Q'):
 					if self.confirm(stdscr):
@@ -230,6 +170,6 @@ class Main():
 					if state != QUERY_ERR: 
 						if state == QUERY_DONE:
 							self.player_teams.apply(query)
-							self.add_log('you: %s' % query.get_text(), shift=2)
+							self.term.add_log('you: %s' % query.get_text(), shift=2)
 							query.init()
 						self.update_query(query)

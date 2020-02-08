@@ -44,12 +44,12 @@ GOAL_COUNT = 2
 
 #debug
 
-if True:
+if False:
 	#COUNT_FOREST = 0
 	#COUNT_WONDER = 0
 	#SIZE = 10
 	#COUNT_WATER = 0
-	#SPEED_FACTOR = 10 # 1 normal, 2 faster
+	SPEED_FACTOR = 50 # 1 normal, 2 faster
 	DEBUG = True
 	#COUNT_NPC_TEAMS = 10
 	#GOAL_COUNT = 5

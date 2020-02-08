@@ -12,8 +12,7 @@ class Fight():
 				t.still_fighting = False
 		for t in self.teams2:
 			if t.fighting:
-				t.still_fighting = False
-
+				t.still_fighting = False 
 
 	def kill(self, teams, count):
 		left_to_kill = count
@@ -110,8 +109,17 @@ class Fight():
 
 
 
+class TimedFight():
+	def __init__(self):
+		self.last_fight_time = datetime.datetime.now()
+
+	def check(self, map_, teams1, teams2):
+		if self.last_fight_time + datetime.timedelta(seconds = 10 / SPEED_FACTOR) < datetime.datetime.now(): # every 10 minutes in game
+			self.last_fight_time = datetime.datetime.now()
+
+			Fight(map_, teams1, teams2).run() # will also handle the command
 
 
-	# it's here we'll add the task of fighting, and also remove it maybe ?
-# will append a command fight, or update it if existing
 		
+
+	
