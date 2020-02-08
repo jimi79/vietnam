@@ -193,8 +193,6 @@ class Commands():
 				if command.group == group:
 					self.remove_command(i) 
 
-
-
 		rank = None
 		for i in range(0, len(self.list)):
 			if command.priority >= self.list[i].priority:

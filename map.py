@@ -2,6 +2,9 @@ import copy
 from const import *
 from goals import *
 
+COLOR_NONE = 0
+COLOR_FOREST = 1
+COLOR_WATER = 2
 
 class Map_():
 
@@ -53,11 +56,10 @@ class Map_():
 		for y in range(0, SIZE):
 			for x in range(0, SIZE):
 				if self.geo[y][x] == None:
-					self.placed['plain'].append((y, x))
+					round.placed['plain'].append((y, x))
 
 
-	def place_forest(self, ratio):
-		count = int(SIZE * SIZE * ratio)
+	def place_forest(self, count):
 		random.shuffle(self.place_for['forest'])
 		while count > 0 and len(self.place_for['forest']) > 0:
 			y, x = self.place_for['forest'][0]
@@ -69,8 +71,7 @@ class Map_():
 			count = count - 1
 			self.placed['forest'].append((y, x)) 
 
-	def place_water(self, ratio): 
-		count = int(SIZE * SIZE * ratio)
+	def place_water(self, count): 
 		random.shuffle(self.place_for['water'])
 		while count > 0 and len(self.place_for['water']) > 0:
 			y, x = self.place_for['water'][0]
@@ -85,14 +86,16 @@ class Map_():
 			self.place_for['wonder_on_water'].append((y, x))
 			count  = count - 1
 
-	def place_wonder(self, ratio): 
+		for p in self.place_for['npc']:
+			log("(%d, %d)" % p)
+
+	def place_wonder(self, count): 
 		wonder_on_water = ["Con Dao Islands", "Tam Coc", "My Khe Beach", "Cham Islands", "Mekong Delta", "Phu Quoc"]
 		wonder_on_ground = ["Khai Dinh Tomb", "a village", "Marble Mountains", "Hang Son Doong Cave", "Temple of Literature", "Bac Ha", "Hang Nga's Guesthouse", "Cao Dai Temple", "Imperial Citadel", "Mui Ne", "Sa Pa Terraces", "Thien Mu Pagoda"]
 		random.shuffle(wonder_on_ground)
 		random.shuffle(wonder_on_water)
 		random.shuffle(self.place_for['wonder_on_water'])
 		random.shuffle(self.place_for['wonder_on_ground'])
-		count = int(SIZE * SIZE * ratio)
 		while True:
 			if count == 0:
 				break 
@@ -123,10 +126,10 @@ class Map_():
 			self.wonder[y][x] = wonder
 			count = count - 1 
 
-	def place(self, ratio_water = 0.3, ratio_forest = 0.4, ratio_wonder = 0.3):
-		self.place_water(ratio_water)
-		self.place_forest(ratio_forest)
-		self.place_wonder(ratio_wonder)
+	def place(self, count_water, count_forest, count_wonder):
+		self.place_water(count_water)
+		self.place_forest(count_forest)
+		self.place_wonder(count_wonder)
 
 	def get_goal_location(self):
 		if len(self.place_for['goal']) > 0:
@@ -144,4 +147,4 @@ class Map_():
 		return self.place_for['npc'][0] 
 
 	def get_team_npc_patrol_location(self, our_y, our_x):
-		return [(y, x) for (y, x) in self.place_for['npc'] if x != our_x and y != our_y and ((abs(x - our_x) <= 1) and (abs(y - our_y) <= 1))]
+		return [(y, x) for (y, x) in self.place_for['npc'] if (x != our_x or y != our_y) and ((abs(x - our_x) <= 1) and (abs(y - our_y) <= 1))]

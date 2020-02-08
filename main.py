@@ -8,6 +8,7 @@ from team import *
 from teams import *
 from goals import *
 from query import *
+from fight import *
 
 class Main():
 
@@ -29,7 +30,8 @@ class Main():
 		#curses.curs_set(0)
 		#curses.cbreak()
 		curses.halfdelay(10) #nocbreak to cancel
-		#curses.init_pair(1, curses.COLOR_GRAY) # to display help
+		curses.init_pair(1, 0, curses.COLOR_GREEN)
+		curses.init_pair(2, 0, curses.COLOR_BLUE)
 
 	def init_windows(self, stdscr):
 		self.init_curses()
@@ -53,7 +55,7 @@ class Main():
 
 	def init_game(self):
 		self.map = Map_()
-		self.map.place(ratio_forest = RATIO_FOREST, ratio_wonder = RATIO_WONDER, ratio_water = RATIO_WATER)
+		self.map.place(count_forest = COUNT_FOREST, count_wonder = COUNT_WONDER, count_water = COUNT_WATER)
 		self.goals = Goals(self.map) # a list of places, and place on the map the first one to reach 
 		self.player_teams = Teams(count = COUNT_PLAYER_TEAMS, map_ = self.map, npc = False, goals = self.goals)
 		self.player_teams.append_heli(map_ = self.map, npc = False)
@@ -61,14 +63,20 @@ class Main():
 		self.player_teams.set_other_team(self.npc_teams)
 		self.npc_teams.set_other_team(self.player_teams)
 		self.initial_time = datetime.datetime.now()
+		self.last_fight_time = datetime.datetime.now() # should be in Fight object, and that object should be instanciated from the beginning
 
 	def init(self, stdscr):
 		self.init_windows(stdscr)
 		self.init_game()
 
 	def tick(self, stdscr):
+		if self.last_fight_time + datetime.timedelta(seconds = 10 / SPEED_FACTOR) < datetime.datetime.now(): # every 10 minutes in game
+			self.last_fight_time = datetime.datetime.now()
+			Fight(self.map, self.player_teams, self.npc_teams).run() # will also handle the command
+
 		self.player_teams.tick()
 		self.npc_teams.tick()
+
 
 		for reply in self.get_replies():
 			self.add_log("%s: %s" % (reply.team, reply.text))
@@ -200,6 +208,8 @@ class Main():
 						self.log_locations()
 					elif k == ord('4'):
 						self.log_tasks() 
+					elif k == ord('5'):
+						self.print_map(self.log_win) 
 
 				if k == ord('Q'):
 					if self.confirm(stdscr):

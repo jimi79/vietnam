@@ -9,6 +9,9 @@ class Teams():
 		if npc:
 			locations = map_.get_team_npc_patrol_location(team.y, team.x)
 			if len(locations) > 0:
+				log("location for team %s are" % team.nato)
+				for l in locations:
+					log("(%d, %d)" % l)
 				team.commands.add(CommandPatrol(locations, team.y, team.x)) 
 		team.npc = npc
 		team.our_teams = self 
@@ -22,6 +25,8 @@ class Teams():
 
 	def __init__(self, count, map_, npc, goals):
 		self.list = []
+		self.nato =['alpha', 'bravo', 'charly', 'delta', 'echo', 'fox-trot', 'hotel', 'india', 'juliet', 'kilo', 'lima', 'mike', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango', 'uniform', 'victor', 'wiskhey', 'x-ray', 'yankee', 'zulu']
+		self.npc_id = 0
 		for i in range(0, count):
 			if npc:
 				members = self.rand(NPC_TEAMS_AVG_SIZE)
@@ -34,15 +39,21 @@ class Teams():
 				y, x = map_.get_team_npc_location()
 			else: 
 				y, x = map_.get_team_player_location()
-			t = TeamInfantry(id_ = i, count = members, goals = goals, y = y, x = x) 
+			if npc:
+				self.npc_id = self.npc_id + 1
+				name = str(i) 
+			else:
+				name = self.nato.pop(0)
+			t = TeamInfantry(id_ = i, count = members, goals = goals, y = y, x = x, name = name) 
 			self.add(t, npc, map_)
 
 	def append_heli(self, map_, npc):
-		heli = TeamHelicopter(len(self.list))
+		name = self.nato.pop(0)
+		heli = TeamHelicopter(len(self.list), name = name)
 		self.add(heli, npc, map_)
 
 	def get_char(self, y, x):
-		for team in self.list:
+		for team in [t for t in self.list if isinstance(t, TeamInfantry)]:
 			if team.x == x and team.y == y:
 				return True
 		return False

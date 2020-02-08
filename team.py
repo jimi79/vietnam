@@ -7,20 +7,17 @@ from command import *
 from reply import *
 from goal import *
 
-nato = ['alpha', 'bravo', 'charly', 'delta', 'echo', 'fox-trot', 'hotel', 'india', 'juliet', 'kilo', 'lima', 'mike', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango', 'uniform', 'victor', 'wiskhey', 'x-ray', 'yankee', 'zulu']
-
 class Team():
-	def __init__(self, id_): 
+	def __init__(self, id_, name): 
 		self.id = id_
 		self.commands = Commands()
-		self.nato = nato.pop(0)
-		self.letter = self.nato[0]
-
-		self.replies = [] # list of messages returned by the team
-
+		self.nato = name
+		self.letter = name[0] 
+		self.replies = [] # list of messages returned by the team 
 		self.other_teams = None 
 		self.our_teams = None 
 		self.npc = False
+		self.fighting = False
 
 	def get_direction(self, desty, destx):
 		y = self.y
@@ -48,8 +45,8 @@ class Team():
 		return r
 	
 class TeamInfantry(Team):
-	def __init__(self, id_, count, goals, y, x): 
-		super().__init__(id_)
+	def __init__(self, id_, count, goals, y, x, name): 
+		super().__init__(id_, name = name)
 		self.goals = goals
 		self.y = y
 		self.x = x
@@ -57,21 +54,21 @@ class TeamInfantry(Team):
 		self.count = count 
 	
 	def tick(self): 
+# we don't handle fight here, fights are handled by somethg else.
+# but still, there is a command added to the list, that will prevent other commands to be added
 		if not self.get_exists():
 			self.commands.reset()
 			return
-		self.handle_external_events() 
-	
+
 		if len(self.commands.list) > 0:
 			command = self.commands.list[0]
+
+
 			if command.when <= datetime.datetime.now():
 				self.commands.list.pop(0) 
-				if isinstance(command, CommandFight):
-					self.fight(command)
-					if len(self.get_ennemies_at_pos()) == 0:
-						command.auto_repeat = False
-						self.add_reply("we just had a fight, we killed %d peoples, and lost %d peoples" % (command.killed, command.count_before - self.count))
 # no need to rewrite the command, bc it pops up as long as there are ennemies anyway
+				if isinstance(command, CommandFight):
+					pass
 				elif isinstance(command, CommandStop):
 					self.commands.reset()
 					self.add_reply('we stopped') 
@@ -196,24 +193,6 @@ class TeamInfantry(Team):
 			self.x = x
 		return not stop
 
-	def handle_external_events(self):
-		if len(self.get_ennemies_at_pos()) > 0: 
-			if not self.fighting():
-				self.commands.add(CommandFight(self.count))
-
-	def fight(self, command):
-		killed = random.randrange(0, int(self.count))
-		teams = self.get_ennemies_at_pos()
-		actually_killed = 0
-		for team in teams:
-			if killed == 0:
-				break 
-			k = min(team.count, killed)
-			team.count = team.count - k
-			killed = killed - k
-			actually_killed = actually_killed + k
-		command.killed = command.killed + actually_killed
-	
 	def fighting(self):
 		r = [c for c in self.commands.list if isinstance(c, CommandFight)]
 		r = len(r) > 0
@@ -295,8 +274,8 @@ class TeamInfantry(Team):
 			self.commands.add(CommandDoWork(work[0]))
 
 class TeamHelicopter(Team):
-	def __init__(self, id_):
-		super().__init__(id_)
+	def __init__(self, id_, name):
+		super().__init__(id_ = id_, name = name)
 		self.exited = False
 	
 	def tick(self): 
