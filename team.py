@@ -184,7 +184,7 @@ class TeamInfantry(Team):
 			self.add_reply("we can't go pass that water.")
 			stop = True
 		elif isinstance(command, CommandMoveOnce):
-			self.add_reply("we have at the new location.")
+			self.add_reply("we are at the new location.")
 			self.commands.add(CommandLook())
 		if stop:
 			self.commands.add(CommandLook())
