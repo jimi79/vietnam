@@ -43,4 +43,14 @@ how it works:
 
 example of a beginging game:
 
+key pressed: at
+day 1 00:34: you: team alpha, status
+key pressed: al
+day 1 01:11: you: team alpha, look
+reply from alpha for the look command
+day 1 02:01: alpha: we see: E: a forest. SE: around 10 soldiers.
+reply from alpha for the status command (they might arrive in different order, the delay to respond is random)
+day 1 02:52: alpha: we are 28 people.
+
+
    
