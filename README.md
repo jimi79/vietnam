@@ -1,4 +1,7 @@
 This is a game. A very approximate simulation of the vietnam war, only in text.
+
+starts with game.py
+
 The screen is separated in two zones: 
 * top: log of radio exchanges
 * bottom: commands sent to your teams
