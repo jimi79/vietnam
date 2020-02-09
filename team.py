@@ -310,7 +310,7 @@ class TeamHelicopter(Team):
 		return False
 	
 	def round_distance(self, value):
-		approxs = [1,2,5,10,15,20,30,40,50,60,70,100,150,200,300,400,500]
+		approxs = [1,2,5,8,10,15,20,30,40,50,60,70,100,150,200,300,400,500]
 		dists = [(a, abs(a - value)) for a in approxs]
 		dists.sort(key = lambda x:abs(x[1]))
 		return dists[0][0]
