@@ -252,10 +252,10 @@ class TeamInfantry(Team):
 			self.add_reply("we exited, bye")
 		else:
 			if command.goal.done:
-				self.add_reply("%s was done by someone else" % command.goal.name)
+				self.add_reply("%s was done by someone else." % command.goal.name)
 			else:
 				command.goal.done = True 
-				self.add_reply("%s is done" % command.goal.name)
+				self.add_reply("%s is done." % command.goal.name)
 
 	def do_patrol(self, command):
 		if self.x == command.x and self.y == command.y:
@@ -269,9 +269,12 @@ class TeamInfantry(Team):
 	def do_ask_work(self):
 		work = [g for g in self.goals.list if g.x == self.x and g.y == self.y]
 		if len(work) == 0:
-			self.add_reply('there is nothing to do here')
+			self.add_reply('there is nothing to do here.')
 		else:
-			self.commands.add(CommandDoWork(work[0]))
+			if work[0].done:
+				self.add_reply('this task is already done.')
+			else:
+				self.commands.add(CommandDoWork(work[0]))
 
 class TeamHelicopter(Team):
 	def __init__(self, id_, name):
