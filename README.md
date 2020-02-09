@@ -12,10 +12,10 @@ You have 4 teams:
 # What they can do:
 * *look* they will tell you what they see in 8 directions: north, north east, east, south east, south, south-west, west, north-west
 * *status* they will tell you the number of ppl alive in the team (randomly attributed at start), and if they are doing somethg at the moment
-* *move* then you give them a direction
+* *start moving* then you give them a direction
 * *work* if there is somethg to be done here, any of the team can do it, unless some other team is already working on it.
 * *stop* stop what they are doing
-* *move for 5 km* move for a short distance. easier to handle when u're commanding than the other move instruction, which instructs them to move until they can't continue.
+* *move for 5 km* move for a short distance. easier to handle when u're commanding than the other *start moving* instruction, which instructs them to move until they can't continue.
 
 # what the Helicopter can do:
 * get directions / reckon
@@ -47,7 +47,7 @@ if a fight occure, all other commands are erased.
 ## heli command
 the heli can only go on reckon missions. here are the steps of a reckon mission
 * taking off
-* reporting position of each team compared to each goal left to be done
+* reporting approximate position of each team compared to each goal left to be done
 * going back
 * refuelling
 if you request a new reckon mission while one is in progress, the team will report you why it can't do it at that moment.
@@ -75,7 +75,7 @@ day 1 00:11: a: team alpha, b: team bravo, c: team charly, d: team delta
 
 **a, tab**
 
-day 1 02:20: l: look, t: status, s: stop, w: work, M: move, m: move for 5 km
+day 1 02:20: l: look, t: status, s: stop, w: work, M: start moving, m: move for 5 km
 
 **t**
 

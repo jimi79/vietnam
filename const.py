@@ -44,7 +44,7 @@ GOAL_COUNT = 2
 
 #debug
 
-if False:
+if True:
 	#COUNT_FOREST = 0
 	#COUNT_WONDER = 0
 	#SIZE = 10

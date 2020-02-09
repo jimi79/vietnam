@@ -309,6 +309,12 @@ class TeamHelicopter(Team):
 	def fighting(self):
 		return False
 	
+	def round_distance(self, value):
+		approxs = [1,2,5,10,15,20,30,40,50,60,70,100,150,200,300,400,500]
+		dists = [(a, abs(a - value)) for a in approxs]
+		dists.sort(key = lambda x:abs(x[1]))
+		return dists[0][0]
+
 	def do_get_directions(self):
 		s = []
 		l = [t for t in self.our_teams.list if isinstance(t, TeamInfantry)]
@@ -318,7 +324,7 @@ class TeamHelicopter(Team):
 				if len(gl) > 0:
 					s2 = []
 					for g in gl:
-						dist = team.get_distance(g.y, g.x) * CELL_RESOLUTION
+						dist = self.round_distance(team.get_distance(g.y, g.x) * CELL_RESOLUTION)
 						dir_ = team.get_direction(g.y, g.x)
 						goal_name = 'exit point' if isinstance(g, EndGoal) else 'the objective "%s"' % g.name
 						if dist < CELL_RESOLUTION:

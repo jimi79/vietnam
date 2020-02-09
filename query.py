@@ -51,7 +51,7 @@ class Query():
 						't': {'text': 'status', 'code': COMMAND_STATUS},
 						's': {'text': 'stop', 'code': COMMAND_STOP},
 						'w': {'text': 'work', 'code': COMMAND_WORK},
-						'M': {'text': 'move', 'code': COMMAND_MOVE},
+						'M': {'text': 'start moving', 'code': COMMAND_MOVE},
 						'm': {'text': 'move for %0.0f km' % CELL_RESOLUTION, 'code': COMMAND_MOVE_ONCE}
 					}
 				}
