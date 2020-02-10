@@ -132,3 +132,11 @@ a ennemy cannot move more than three cells in total, so if you see it (meaning i
 # replay
 type replay.py to see the replay of the last game
 you need a 256 colors terminal (couldn't find a proper green in 16 colors)
+a, b, c: your teams
+G: a goal that isn't done yet
+E: exit
++: enemies
+green: forest
+blue: water
+red *: a ongoing fight
+
