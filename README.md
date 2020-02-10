@@ -128,3 +128,7 @@ but it's not easy because:
 * look very often
 
 a ennemy cannot move more than three cells in total, so if you see it (meaning it's one cell away), you can move two cells away from it, it won't reach you in any case.
+
+# replay
+type replay.py to see the replay of the last game
+you need a 256 colors terminal (couldn't find a proper green in 16 colors)

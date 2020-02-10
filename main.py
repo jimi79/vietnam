@@ -10,6 +10,7 @@ from goals import *
 from query import *
 from fight import *
 from term import *
+from log import *
 
 class Main():
 
@@ -35,6 +36,7 @@ class Main():
 
 	def init(self, stdscr):
 		self.term = Term(stdscr)
+		self.log = Log()
 		self.init_game()
 
 	def tick(self, stdscr):
@@ -43,10 +45,12 @@ class Main():
 		self.player_teams.tick()
 		self.npc_teams.tick()
 
-
 		for reply in self.get_replies():
 			self.term.add_log("%s: %s" % (reply.team, reply.text))
 		a = self.get_all_teams_status()
+
+		if self.log.needs_update(self.player_teams):
+			self.log.add_log(self.term.get_time(), self.map, self.player_teams, self.npc_teams, self.goals, self.term)
 
 		end = False
 		if ALL_ALIVE_TEAMS_EXITED in a:
@@ -56,10 +60,8 @@ class Main():
 		if end:
 			curses.cbreak() #nocbreak to cancel
 			a = stdscr.getch() # no halfkey here
-			return False
-
+			return False 
 		return True
-
 
 	def print_map(self, win):
 		win.clear()

@@ -7,5 +7,5 @@ def rnd():
 
 def log(text):
 	if DEBUG:
-		f = open("log", "a")
+		f = open("debug", "a")
 		f.write("%s: %s\n" % (datetime.datetime.now().strftime("%H:%M:%S"), text)) 
