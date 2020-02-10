@@ -52,10 +52,10 @@ class Log():
 							if not g.done:
 								ch = 'G'
 
-				if len([t for t in npc_teams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.get_alive()]) > 0:
+				if len([t for t in npc_teams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.get_exists()]) > 0:
 					ch = '+'
 
-				l = [t for t in player_teams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.get_alive()]
+				l = [t for t in player_teams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.get_exists()]
 				if len(l) > 0:
 					ch = l[0].letter
 					
@@ -69,7 +69,9 @@ class Log():
 		f.write(s)
 		f.close()
 
-	def replay(self):
+	def replay(self, speed):
+		if speed == None:
+			speed = 1
 		print("\033[2J\033[1;1H", end = "")
 		f = open("log", "r")
 		first_delimiter = True
@@ -79,7 +81,7 @@ class Log():
 				break
 			if line.strip() == self.delimiter:
 				if not first_delimiter:
-					time.sleep(1)
+					time.sleep(1 / speed)
 				else:
 					first_delimiter = False
 				print("\033[2J\033[1;1H", end = "")

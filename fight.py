@@ -16,19 +16,19 @@ class Fight():
 
 	def kill(self, teams, count):
 		left_to_kill = count
-		log("someone will kill %d" % count)
+		debug("someone will kill %d" % count)
 		for t in teams:
 			killed_in_that_team = min(t.count, count // len(teams))
 			t.count = t.count - killed_in_that_team
-			log("%d ppl removed from team %s" % (killed_in_that_team, t.nato))
+			debug("%d ppl removed from team %s" % (killed_in_that_team, t.nato))
 			left_to_kill = left_to_kill - killed_in_that_team
 
 		if left_to_kill > 0 and len(teams) > 1: # if one team, we didn't divide, so there is no way there are ppl left to kill
-			log("we need to remove more ppl")
+			debug("we need to remove more ppl")
 			for t in teams:
 				killed_in_that_team = min(t.count, left_to_kill)
 				t.count = t.count - killed_in_that_team
-				log("%d ppl removed from team %s" % (killed_in_that_team, t.nato))
+				debug("%d ppl removed from team %s" % (killed_in_that_team, t.nato))
 				left_to_kill = left_to_kill - killed_in_that_team
 				if left_to_kill == 0:
 					break 
@@ -38,28 +38,28 @@ class Fight():
 			c = [c for c in t.commands.list if isinstance(t, CommandFight)]
 			if len(c) == 0:
 				t.commands.add(CommandFight(t.count)) 
-				log("adding task fight for team %s" % t.nato)
+				debug("adding task fight for team %s" % t.nato)
 				t.fighting = True
 		
 		t.still_fighting = True
 
 	def fight(self, t1, t2):
-		log("Fight between:")
+		debug("Fight between:")
 		for t in t1:
 			self.update_command_list(t)
-			log("on my left: %s" % t.nato)
+			debug("on my left: %s" % t.nato)
 
 		for t in t2:
 			self.update_command_list(t)
-			log("on my right: %s" % t.nato)
+			debug("on my right: %s" % t.nato)
 		
 		count1 = sum([t.count for t in t1])
 		count2 = sum([t.count for t in t2])
 		if count1 > 0 and count2 > 0:
 			killed_by_1 = min(count2, random.randrange(0, count1))
 			killed_by_2 = min(count1, random.randrange(0, count2))
-			log("left team will kill %d ppl" % killed_by_1)
-			log("right team will kill %d ppl" % killed_by_2)
+			debug("left team will kill %d ppl" % killed_by_1)
+			debug("right team will kill %d ppl" % killed_by_2)
 			self.kill(t2, killed_by_1)
 			self.kill(t1, killed_by_2)
 
@@ -90,7 +90,7 @@ class Fight():
 	def clean(self, teams):
 		for t in teams:
 			if t.fighting and not t.still_fighting:
-				log("removing task fight for team %s" % t.nato)
+				debug("removing task fight for team %s" % t.nato)
 				t.fighting = False
 				c = [c for c in t.commands.list if isinstance(c, CommandFight)] # should exists
 				if len(c) > 0:

@@ -9,9 +9,6 @@ class Teams():
 		if npc:
 			locations = map_.get_team_npc_patrol_location(team.y, team.x)
 			if len(locations) > 0:
-				log("location for team %s are" % team.nato)
-				for l in locations:
-					log("(%d, %d)" % l)
 				team.commands.add(CommandPatrol(locations, team.y, team.x)) 
 		team.npc = npc
 		team.our_teams = self 

@@ -86,9 +86,6 @@ class Map_():
 			self.place_for['wonder_on_water'].append((y, x))
 			count  = count - 1
 
-		for p in self.place_for['npc']:
-			log("(%d, %d)" % p)
-
 	def place_wonder(self, count): 
 		wonder_on_water = ["Con Dao Islands", "Tam Coc", "My Khe Beach", "Cham Islands", "Mekong Delta", "Phu Quoc"]
 		wonder_on_ground = ["Khai Dinh Tomb", "a village", "Marble Mountains", "Hang Son Doong Cave", "Temple of Literature", "Bac Ha", "Hang Nga's Guesthouse", "Cao Dai Temple", "Imperial Citadel", "Mui Ne", "Sa Pa Terraces", "Thien Mu Pagoda"]

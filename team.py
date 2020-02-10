@@ -227,7 +227,7 @@ class TeamInfantry(Team):
 				s.append('we are moving.')
 			elif isinstance(self.commands.list[0], CommandDoWork):
 				if isinstance(self.commands.list[0].goal, EndGoal):	
-					s.append('we are going base.')
+					s.append('we are evacuating.')
 				else:
 					s.append('we are working.')
 		return ' '.join(s)
@@ -267,14 +267,23 @@ class TeamInfantry(Team):
 			self.y = command.y
 
 	def do_ask_work(self):
-		work = [g for g in self.goals.list if g.x == self.x and g.y == self.y]
-		if len(work) == 0:
+		works = [g for g in self.goals.list if g.x == self.x and g.y == self.y]
+		if len(works) == 0:
 			self.add_reply('there is nothing to do here.')
 		else:
-			if work[0].done:
-				self.add_reply('this task is already done.')
-			else:
-				self.commands.add(CommandDoWork(work[0]))
+			work = works[0] # work at that pos
+			doit = True
+			if isinstance(work, EndGoal):
+				works = [g for g in self.goals.list if (not isinstance(g, EndGoal)) and (not g.done)] # work left to be done
+				if len(works) > 0:
+					self.add_reply("We can't evacuate right now, there are things to do.")
+					doit = False
+			else: 
+				if work.done:
+					self.add_reply('this task is already done.')
+					doit = False
+			if doit:
+				self.commands.add(CommandDoWork(work)) 
 
 class TeamHelicopter(Team):
 	def __init__(self, id_, name):
