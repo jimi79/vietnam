@@ -125,3 +125,23 @@ add a flag to each team to say 'look after u stop' true/false?
 alpha is a engineer team ? thing is, it doesn't match the story (enginner don't slaughter ppl)
 so that will force team to regroup. that could happen if a team is failling too.
 
+
+
+
+what if:
+only alpha can work
+heli will give alpha distance compared to goals, but bravo and charly compared to alpha
+alpha would be a teamEngineer, with like 3 ppl
+only pb: i need to review my goals
+
+but it doesn't match the narrative.
+but it would be cool. although would it be?
+needs to do that:
+* turn the characteristics of the map (forest, npc) etc into an object
+and add a command line switch to chose a specific game style (would allow debug btw)
+* add a TeamEnginner or TeamVip type, with much less ppl in it
+maybe only that type could work
+* add an option to say if a TeamEnginner is placed on the map, npc can't be placed anywhere near
+* during a fight, a TeamEginner is the least to get killed
+or it could be the player's job to just keep it away from the fight
+
