@@ -32,7 +32,7 @@ COUNT_NPC_TEAMS = round(0.1 * SIZE * SIZE)
 NPC_TEAMS_AVG_SIZE = (10, 5)
 PLAYER_TEAMS_AVG_SIZE = (25, 10)
 
-SPEED_FACTOR = 20 # 1 normal, 2 faster
+SPEED_FACTOR = 1 # 1 normal, 2 faster
 
 DEBUG = False
 SUPERMAN = True
