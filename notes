@@ -2,17 +2,17 @@ apply -> add_request
 add_request at the higher level, so i can say if the guy is too busy to hear it (in a fight or dead or not here)
 if processed, then replies 'ack' or 'nack' with a reason
 
-tick will call 
-	check_ext_event
-		that will also create command like fight (unless already in a fight)
-	and then process
-		if time elapsed of the command, do it
-			if fight: fight
-			if move: move done, etc
-		and replay it if auto reply
+tick will call
+    check_ext_event
+        that will also create command like fight (unless already in a fight)
+    and then process
+        if time elapsed of the command, do it
+            if fight: fight
+            if move: move done, etc
+        and replay it if auto reply
 
 when a reply occures, create a command that is reply, takes 15s +-5s to say, and a parameter that is the actual reply
-	will write to team.add_reply
+    will write to team.add_reply
 
 
 
@@ -35,7 +35,7 @@ requests are still auto_repeated: move and fight. won't be repeated if not accom
 
 
 remove the heritage (insert / append), it's just a property of the command. look will have insert set to true, while move insert to false.
-no action of any kind without a command, even just 'looking'. 
+no action of any kind without a command, even just 'looking'.
 looking is 'add_request', no reply bc i know it's quick, then add command Look, then once ticked, reply
 
 should i have a list of 'request', 'action', and 'replies'? it seems so. so i can say 'move here', and then 'move here', replies will be 'moving to', then 'moving to'
@@ -53,51 +53,51 @@ maybe two types: movement and query. and a query adds up with another query, whi
 but a radio call, a fight, or a destination reached is an event like any other, with a priority, and may or may not generate a reply
 
 
-main 
-	map
-		const
-		goals
-			goal
-				tools
-					const
-				const
-	const
-	team
-		tools
-			const
-		command
-			tools
-				const
-			const 
-		reply
-		goal
-			tools
-				const
-			const
-	teams
-		team
-			tools
-				const
-			command
-				tools
-					const
-				const 
-			reply
-			goal
-				tools
-					const
-				const
-		command
-			tools
-				cosnt
-			const
-		const
-	goals
-		goal
-	query
-		const
-		tools
-			const
+main
+    map
+        const
+        goals
+            goal
+                tools
+                    const
+                const
+    const
+    team
+        tools
+            const
+        command
+            tools
+                const
+            const
+        reply
+        goal
+            tools
+                const
+            const
+    teams
+        team
+            tools
+                const
+            command
+                tools
+                    const
+                const
+            reply
+            goal
+                tools
+                    const
+                const
+        command
+            tools
+                cosnt
+            const
+        const
+    goals
+        goal
+    query
+        const
+        tools
+            const
 
 
 
@@ -112,10 +112,10 @@ fight is prority super high. once done, it removes everythg itself
 
 apply(request)
 tick
-	check_eternal_events
-	if time elapsed, exec request
-	
-TODO: prevent to do work on a tile that doesn't have work to be done. also, check if work is already done. it looks like i need a 'request for work' action, bc i need to check stuff. 
+    check_eternal_events
+    if time elapsed, exec request
+
+TODO: prevent to do work on a tile that doesn't have work to be done. also, check if work is already done. it looks like i need a 'request for work' action, bc i need to check stuff.
 
 
 
