@@ -12,7 +12,7 @@ from command import *
 
 
 def run():
-	m = Main()
-	curses.wrapper(m.run)
-		
+    m = Main()
+    curses.wrapper(m.run)
+
 run()
