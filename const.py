@@ -35,7 +35,7 @@ PLAYER_TEAMS_AVG_SIZE = (25, 10)
 SPEED_FACTOR = 1 # 1 normal, 2 faster
 
 DEBUG = False
-SUPERMAN = True
+SUPERMAN = False
 
 COUNT_FOREST = round(0.2 * SIZE * SIZE)
 COUNT_WATER = round(0.2 * SIZE * SIZE)
