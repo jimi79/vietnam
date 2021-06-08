@@ -34,7 +34,7 @@ PLAYER_TEAMS_AVG_SIZE = (25, 10)
 
 SPEED_FACTOR = 1 # 1 normal, 2 faster
 
-DEBUG = False
+DEBUG = True
 SUPERMAN = False
 
 COUNT_FOREST = round(0.2 * SIZE * SIZE)

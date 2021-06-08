@@ -33,7 +33,7 @@ class Team():
 
 	def add_reply(self, value):
 		if not self.npc:
-			reply = Reply(value, self.nato)
+			reply = Reply(value, self)
 			self.replies.append(reply)
 	
 	def dump_replies(self):

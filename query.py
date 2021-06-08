@@ -111,3 +111,10 @@ class Query():
 		if len(self.query) > 0:
 			self.query = self.query[0:-1]
 			self.next_query()
+
+	def get_team(self): 
+		team = None
+		if len(self.query) > 0:	
+			team = self.teams.get_team_by_letter(self.query[0]['code'])
+		return team
+

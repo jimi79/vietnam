@@ -34,9 +34,9 @@ class Main():
 		self.timed_fight = TimedFight()
 
 	def init(self, stdscr):
-		self.term = Term(stdscr)
 		self.log = Log()
-		self.init_game()
+		self.init_game() 
+		self.term = Term(stdscr, self.player_teams)
 
 	def tick(self, stdscr):
 		self.timed_fight.check(self.map, self.player_teams, self.npc_teams)
@@ -45,7 +45,7 @@ class Main():
 		self.npc_teams.tick()
 
 		for reply in self.get_replies():
-			self.term.add_log("%s: %s" % (reply.team, reply.text))
+			self.term.add_log("%s: %s" % (reply.team.nato, reply.text), 0, reply.team)
 		a = self.get_all_teams_status()
 
 		update_reason = self.log.get_update_reason(self.player_teams, self.goals)
@@ -91,7 +91,7 @@ class Main():
 		self.term.update_query(query.get_text())
 
 	def get_help(self, query):
-		self.term.add_log(', '.join(query.get_help()))
+		self.term.update_query(', '.join(query.get_help()))
 
 	def log_goals(self):
 		if DEBUG:
@@ -137,7 +137,7 @@ class Main():
 				if not self.tick(stdscr):
 					break
 				old_time = time
-			self.term.resize_windows(stdscr)
+			self.term.resize()
 
 			k = self.get_key(stdscr)
 			if k != None:
@@ -172,6 +172,6 @@ class Main():
 					if state != QUERY_ERR:
 						if state == QUERY_DONE:
 							self.player_teams.apply(query)
-							self.term.add_log('you: %s' % query.get_text(), shift=2)
+							self.term.add_log('you: %s' % query.get_text(), 2, query.get_team()) # TODO no idea how to identify the team concerned, check query
 							query.init()
 						self.update_query(query)

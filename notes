@@ -145,3 +145,12 @@ maybe only that type could work
 * during a fight, a TeamEginner is the least to get killed
 or it could be the player's job to just keep it away from the fight
 
+---
+
+one window per team, vertically
+not sure how to resize that
+or in square, i have 4 teams (so far)
+maybe horizontally, so that if i increase the number of teams, it's just a division
+
+pb: how to identify the team that receive the message ? query doesn't seem very helpful, but it should be
+
