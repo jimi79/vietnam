@@ -44,13 +44,13 @@ GOAL_COUNT = 2
 
 #debug
 
-if False:
-    COUNT_FOREST = 0
-    COUNT_WONDER = 0
-    SIZE = 4
-    COUNT_WATER = 0
-    SPEED_FACTOR = 20 # 1 normal, 2 faster
-    DEBUG = True
-    COUNT_NPC_TEAMS = 0
-    #GOAL_COUNT = 5
-    #SUPERMAN = True
+if DEBUG:
+	COUNT_FOREST = 0
+	COUNT_WONDER = 0
+	SIZE = 4
+	COUNT_WATER = 0
+	SPEED_FACTOR = 20 # 1 normal, 2 faster
+	DEBUG = True
+	COUNT_NPC_TEAMS = 0
+	#GOAL_COUNT = 5
+	#SUPERMAN = True
