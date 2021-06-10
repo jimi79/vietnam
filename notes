@@ -154,3 +154,7 @@ maybe horizontally, so that if i increase the number of teams, it's just a divis
 
 pb: how to identify the team that receive the message ? query doesn't seem very helpful, but it should be
 
+
+
+day 13 06:24: alpha: we see: NE: a forest. E: a forest. SW: a forest. W: some water. NW: around 0 soldiers.
+-> they should simply disappear
