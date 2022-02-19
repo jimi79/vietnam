@@ -34,7 +34,7 @@ PLAYER_TEAMS_AVG_SIZE = (25, 10)
 
 SPEED_FACTOR = 1 # 1 normal, 2 faster
 
-DEBUG = True
+DEBUG = False
 SUPERMAN = False
 
 COUNT_FOREST = round(0.2 * SIZE * SIZE)
@@ -47,10 +47,10 @@ GOAL_COUNT = 2
 if DEBUG:
 	COUNT_FOREST = 0
 	COUNT_WONDER = 0
-	SIZE = 4
+	SIZE = 8
 	COUNT_WATER = 0
 	SPEED_FACTOR = 20 # 1 normal, 2 faster
 	DEBUG = True
-	COUNT_NPC_TEAMS = 0
+	COUNT_NPC_TEAMS = 10
 	#GOAL_COUNT = 5
 	#SUPERMAN = True

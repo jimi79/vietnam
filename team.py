@@ -60,9 +60,7 @@ class TeamInfantry(Team):
 			return
 
 		if len(self.commands.list) > 0:
-			command = self.commands.list[0]
-
-
+			command = self.commands.list[0] 
 			if command.when <= datetime.datetime.now():
 				self.commands.list.pop(0) 
 # no need to rewrite the command, bc it pops up as long as there are ennemies anyway
@@ -129,7 +127,7 @@ class TeamInfantry(Team):
 							r = 5
 						else:
 							r = round(c / 5, 0) * 5
-						items.append("around %d soldiers" % (round(c, -1)))
+						items.append("around %d soldiers" % (r))
 				for team in [a for a in self.our_teams.get_infrantry_list() if a.x == x and a.y == y and a.id != self.id and a.get_exists()]:
 					items.append("team %s" % team.nato)
 			for goal in self.goals.list:
@@ -335,11 +333,11 @@ class TeamHelicopter(Team):
 					for g in gl:
 						dist = self.round_distance(team.get_distance(g.y, g.x) * CELL_RESOLUTION)
 						dir_ = team.get_direction(g.y, g.x)
-						goal_name = 'exit point' if isinstance(g, EndGoal) else 'the objective "%s"' % g.name
+						goal_name = 'exit point' if isinstance(g, EndGoal) else 'the "%s" task' % g.name
 						if dist < CELL_RESOLUTION:
 							s2.append("close to %s" % (goal_name))
 						else:
-							s2.append("at %0.0f kilometers of %s, direction %s" % (dist, goal_name, dir_[1]))
+							s2.append("at %0.0f km %s of %s" % (dist, dir_[1], goal_name))
 					s.append("team %s is %s." % (team.nato, ', '.join(s2)))
 				else:
 					s.append("team %s has nothing to do." % team.nato)

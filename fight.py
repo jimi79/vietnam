@@ -82,8 +82,7 @@ class Fight():
 			t1 = self.build_list_on_that_cell(self.teams1, t.x, t.y)
 			t2 = self.build_list_on_that_cell(self.teams2, t.x, t.y)
 			if self.get_alive_count(t2) > 0 and self.get_alive_count(t1) > 0: # t1 team could be all dead
-				self.fight(t1, t2)
-
+				self.fight(t1, t2) 
 		self.clean(self.teams1)
 		self.clean(self.teams2)
 
@@ -104,10 +103,7 @@ class Fight():
 						else:
 							t.add_reply("we just had a fight and we lost %d peoples" % (command.count_before - t.count))
 					if len(c) > 0:
-						t.commands.list.remove(command)
-
-
-
+						t.commands.list.remove(command) 
 
 class TimedFight():
 	def __init__(self):
@@ -115,6 +111,5 @@ class TimedFight():
 
 	def check(self, map_, teams1, teams2):
 		if self.last_fight_time + datetime.timedelta(seconds = 10 / SPEED_FACTOR) < datetime.datetime.now(): # every 10 minutes in game
-			self.last_fight_time = datetime.datetime.now()
-
+			self.last_fight_time = datetime.datetime.now() 
 			Fight(map_, teams1, teams2).run() # will also handle the command
