@@ -1,6 +1,5 @@
 import datetime
 import copy
-import inflect
 import math
 from tools import *
 from command import *
@@ -203,14 +202,12 @@ class TeamInfantry(Team):
 		for goal in self.goals.list:
 			l.append(goal)
 		s = []
-		a = 1
-		p = inflect.engine()
+		number = 1
 		for goal in l:
-			number = p.number_to_words(p.ordinal(a))
 			dist = round(self.get_distance(goal.y, goal.x))
 			angle, s_angle = self.get_direction(goal.y, goal.x)
-			s.append("%s goal: %s, direction: %s, distance: %0.0f hours." % (number, goal.name, s_angle, dist))
-			a = a + 1
+			s.append("goal %d: %s, direction: %s, distance: %0.0f hours." % (number, goal.name, s_angle, dist))
+			number = number + 1
 		return " ".join(s)
 
 	def is_here(self, location):
