@@ -14,7 +14,7 @@ from log import *
 
 class Main(): 
 	def confirm(self, stdscr):
-		self.term.update_query('confirm closing (y/n)')
+		self.term.updateQuery('confirm closing (y/n)')
 		while True:
 			curses.cbreak() #nocbreak to cancel
 			a = stdscr.getkey()
@@ -22,39 +22,39 @@ class Main():
 				break
 		return a == 'y'
 
-	def init_game(self):
+	def initGame(self):
 		self.map = Map_()
-		self.map.place(count_forest = COUNT_FOREST, count_wonder = COUNT_WONDER, count_water = COUNT_WATER)
+		self.map.place(countForest = COUNT_FOREST, countWonder = COUNT_WONDER, countWater = COUNT_WATER)
 		self.goals = Goals(self.map) # a list of places, and place on the map the first one to reach
-		self.player_teams = Teams(count = COUNT_PLAYER_TEAMS, map_ = self.map, npc = False, goals = self.goals)
-		self.player_teams.append_heli(map_ = self.map, npc = False)
-		self.npc_teams = Teams(count = COUNT_NPC_TEAMS, map_ = self.map, npc = True, goals = self.goals)
-		self.player_teams.set_other_team(self.npc_teams)
-		self.npc_teams.set_other_team(self.player_teams)
-		self.timed_fight = TimedFight()
+		self.playerTeams = Teams(count = COUNT_PLAYER_TEAMS, map_ = self.map, npc = False, goals = self.goals)
+		self.playerTeams.appendHeli(map_ = self.map, npc = False)
+		self.npcTeams = Teams(count = COUNT_NPC_TEAMS, map_ = self.map, npc = True, goals = self.goals)
+		self.playerTeams.setOtherTeam(self.npcTeams)
+		self.npcTeams.setOtherTeam(self.playerTeams)
+		self.timedFight = TimedFight()
 
 	def init(self, stdscr):
 		self.log = Log()
-		self.init_game() 
-		self.term = Term(stdscr, self.player_teams)
+		self.initGame() 
+		self.term = Term(stdscr, self.playerTeams)
 
 	def tick(self, stdscr):
-		self.timed_fight.check(self.map, self.player_teams, self.npc_teams)
+		self.timedFight.check(self.map, self.playerTeams, self.npcTeams)
 
-		self.player_teams.tick()
-		self.npc_teams.tick()
+		self.playerTeams.tick()
+		self.npcTeams.tick()
 
-		for reply in self.get_replies():
-			self.term.add_log("%s: %s" % (reply.team.nato, reply.text), 0, reply.team)
-		a = self.get_all_teams_status()
+		for reply in self.getReplies():
+			self.term.addLog("%s: %s" % (reply.team.nato, reply.text), 0, reply.team)
+		a = self.getAllTeamsStatus()
 
-		update_reason = self.log.get_update_reason(self.player_teams, self.goals)
-		if update_reason:
-			self.log.add_log(self.term.get_time(), self.map, self.player_teams, self.npc_teams, self.goals, update_reason, self.term)
+		updateReason = self.log.getUpdateReason(self.playerTeams, self.goals)
+		if updateReason:
+			self.log.addLog(self.term.getTime(), self.map, self.playerTeams, self.npcTeams, self.goals, updateReason, self.term)
 
 		end = False
 		if ALL_ALIVE_TEAMS_EXITED in a:
-			self.term.add_log('All alive units are safe. Press a key to exit')
+			self.term.addLog('All alive units are safe. Press a key to exit')
 			end = True
 
 		if end:
@@ -63,115 +63,115 @@ class Main():
 			return False
 		return True
 
-	def print_map(self, win):
+	def printMap(self, win):
 		win.clear()
 		for y in range(0, SIZE):
 			for x in range(0, SIZE):
-				c = self.map.get_color(y, x)
+				c = self.map.getColor(y, x)
 				ch = ' '
-				if self.npc_teams.get_char(y, x):
+				if self.npcTeams.getChar(y, x):
 					ch = 'N'
-				if self.player_teams.get_char(y, x):
+				if self.playerTeams.getChar(y, x):
 					ch = 'P'
-				win.addstr(ch, curses.color_pair(c))
+				win.addstr(ch, curses.colorPair(c))
 			win.addstr("\n")
 		win.refresh()
 
-	def get_key(self, stdscr):
+	def getKey(self, stdscr):
 		curses.halfdelay(10) #nocbreak to cancel
 		key = stdscr.getch()
 		if key == -1:
 			return None
 		return key
 
-	def get_replies(self):
-		return self.player_teams.get_replies()
+	def getReplies(self):
+		return self.playerTeams.getReplies()
 
-	def update_query(self, query):
-		self.term.update_query(query.get_text())
+	def updateQuery(self, query):
+		self.term.updateQuery(query.getText())
 
-	def get_help(self, query):
-		self.term.update_query(', '.join(query.get_help()))
+	def getHelp(self, query):
+		self.term.updateQuery(', '.join(query.getHelp()))
 
-	def log_goals(self):
+	def logGoals(self):
 		if DEBUG:
 			for goal in self.goals.list:
-				self.term.add_log("%s at (%d, %d), done:%s, duration: %0.0f" % (goal.name, goal.y, goal.x, "True" if goal.done else "False", goal.duration))
+				self.term.addLog("%s at (%d, %d), done:%s, duration: %0.0f" % (goal.name, goal.y, goal.x, "True" if goal.done else "False", goal.duration))
 
-	def get_all_teams_status(self):
-		return self.player_teams.get_all_teams_status()
+	def getAllTeamsStatus(self):
+		return self.playerTeams.getAllTeamsStatus()
 
-	def log_status(self):
-		a = self.get_all_teams_status()
-		self.term.add_log(", ".join(a))
+	def logStatus(self):
+		a = self.getAllTeamsStatus()
+		self.term.addLog(", ".join(a))
 
-	def log_locations(self):
-		p = "player: %s" % ", ".join(self.player_teams.get_debug_infos())
-		n = "npc: %s" % ", ".join(self.npc_teams.get_debug_infos())
-		self.term.add_log("%s\n%s" % (p, n))
+	def logLocations(self):
+		p = "player: %s" % ", ".join(self.playerTeams.getDebugInfos())
+		n = "npc: %s" % ", ".join(self.npcTeams.getDebugInfos())
+		self.term.addLog("%s\n%s" % (p, n))
 
-	def log_tasks(self):
+	def logTasks(self):
 		s = []
 		s.append("Player's teams:")
-		for team in self.player_teams.list:
+		for team in self.playerTeams.list:
 			s.append("%s: %s" % (team.nato, team.commands.debug()))
 		s.append("NPC's teams:")
-		for team in self.npc_teams.list:
+		for team in self.npcTeams.list:
 			s.append("%s: %s" % (team.nato, team.commands.debug()))
-		self.term.add_log("\n".join(s))
+		self.term.addLog("\n".join(s))
 
 	def run(self, stdscr):
 		self.init(stdscr)
 
-		query = Query(self.player_teams)
-		self.update_query(query)
+		query = Query(self.playerTeams)
+		self.updateQuery(query)
 		k = None
 
-		old_time = datetime.datetime.now()
+		oldTime = datetime.datetime.now()
 		while True:
-			#self.update_time()
+			#self.updateTime()
 
 # to avoid tick every time a key is pressed
 			time = datetime.datetime.now()
-			if (time - old_time).total_seconds() > 1:
+			if (time - oldTime).total_seconds() > 1:
 				if not self.tick(stdscr):
 					break
-				old_time = time
+				oldTime = time
 			self.term.resize()
 
-			k = self.get_key(stdscr)
+			k = self.getKey(stdscr)
 			if k != None:
 				if DEBUG:
 					if k == ord('1'):
-						self.log_goals()
+						self.logGoals()
 					elif k == ord('2'):
-						self.log_status()
+						self.logStatus()
 					elif k == ord('3'):
-						self.log_locations()
+						self.logLocations()
 					elif k == ord('4'):
-						self.log_tasks()
+						self.logTasks()
 					elif k == ord('5'):
-						self.print_map(self.term.log_win)
+						self.printMap(self.term.logWin)
 
 				if k == ord('Q'):
 					if self.confirm(stdscr):
 						break
 					else:
-						self.update_query(query)
+						self.updateQuery(query)
 				elif k == ord('\t'):
-					self.get_help(query)
+					self.getHelp(query)
 				elif k == curses.KEY_BACKSPACE:
-					query.delete_last()
-					self.update_query(query)
+					query.deleteLast()
+					self.updateQuery(query)
 				elif k == 27:
 					query.init()
-					self.update_query(query)
+					self.updateQuery(query)
 				else:
 					k = chr(k)
-					state = query.test_key(k)
+					state = query.testKey(k)
 					if state != QUERY_ERR:
 						if state == QUERY_DONE:
-							self.player_teams.apply(query)
-							self.term.add_log('you: %s' % query.get_text(), 2, query.get_team()) # TODO no idea how to identify the team concerned, check query
+							self.playerTeams.apply(query)
+							self.term.addLog('you: %s' % query.getText(), 2, query.getTeam()) # TODO no idea how to identify the team concerned, check query
 							query.init()
-						self.update_query(query)
+						self.updateQuery(query)

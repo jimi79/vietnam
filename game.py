@@ -6,13 +6,10 @@ import datetime
 import random
 import json
 
-from main import *
-from tools import *
-from command import *
-
+import main
 
 def run():
-	m = Main()
+	m = main.Main()
 	curses.wrapper(m.run)
 
 run()

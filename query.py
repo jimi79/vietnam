@@ -6,13 +6,13 @@ class Query():
 	def init(self):
 		self.query = [] # current query
 		self.end = False
-		self.next_query()
+		self.nextQuery()
 
 	def __init__(self, teams):
 		self.teams = teams
 		self.init() 
 
-	def get_text(self):
+	def getText(self):
 		txts = []
 		for txt in self.query:
 			if 'append' in txt.keys():
@@ -21,12 +21,12 @@ class Query():
 				txts.append(txt['text'])
 		return ' '.join(txts)
 
-	def get_help(self): 
+	def getHelp(self): 
 		values = self.pos['values']
 		lst = ["%s: %s" % (key, values[key]['text']) for key in values.keys()]
 		return lst
 
-	def next_query(self):
+	def nextQuery(self):
 		if len(self.query) == 0:
 			self.pos = {
 				'name': 'team', 
@@ -41,7 +41,7 @@ class Query():
 				}
 
 		if len(self.query) == 1:
-			team = self.teams.get_team_by_letter(self.query[0]['code'])
+			team = self.teams.getTeamByLetter(self.query[0]['code'])
 			if isinstance(team, TeamInfantry): # will be TeamInfantry
 				self.pos = {
 					'name': 'action', 
@@ -93,11 +93,11 @@ class Query():
 		if len(self.query) == 3:
 			self.end = True
 
-	def test_key(self, key): 
+	def testKey(self, key): 
 		if not self.end:
 			if key in self.pos['values'].keys():
 				self.query.append( self.pos['values'][key])
-				self.next_query()
+				self.nextQuery()
 				if self.end:
 					return QUERY_DONE
 				else:
@@ -107,14 +107,14 @@ class Query():
 		else:
 			return QUERY_ERR
 
-	def delete_last(self):
+	def deleteLast(self):
 		if len(self.query) > 0:
 			self.query = self.query[0:-1]
-			self.next_query()
+			self.nextQuery()
 
-	def get_team(self): 
+	def getTeam(self): 
 		team = None
 		if len(self.query) > 0:	
-			team = self.teams.get_team_by_letter(self.query[0]['code'])
+			team = self.teams.getTeamByLetter(self.query[0]['code'])
 		return team
 

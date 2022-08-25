@@ -6,17 +6,44 @@ COLOR_NONE = 0
 COLOR_FOREST = 1
 COLOR_WATER = 2
 
+class PlacedWonder():
+	def __init__(self, wonder, y, x, onWater):
+		self.wonder = wonder
+		self.y = y
+		self.x = x
+		self.onWater = onWater
+
+class Wonder():
+	def __init__(self, name, maxDistanceVisibility):
+		self.name = name
+		self.maxDistanceVisibility = maxDistanceVisibility
+
 class Map_():
+	def __init__(self):
+		self.placeFor = {}
+		self.geo = [[None for i in range(0, SIZE)] for y in range(0, SIZE)]
+		self.wonder = [[None for i in range(0, SIZE)] for y in range(0, SIZE)]
+		self.placeFor['forest'] = self.getAllCells()
+		self.placeFor['plain'] = self.getAllCells()
+		self.placeFor['water'] = self.getAllWaterCells()
+		self.placeFor['wonderOnGround'] = self.getAllCells()
+		self.placeFor['wonderOnWater'] = []
+		self.placeFor['goal'] = self.getAllCells()
+		self.placeFor['player'] =self. getAllCells()
+		self.placeFor['npc'] = self.getAllCells()
+		self.placed = {}
+		self.placed['water'] = []
+		self.placed['forest'] = []
+		self.wonderLocation = [] # all locations in the form of (x,y)
 
-
-	def get_all_cells(self):
+	def getAllCells(self):
 		a = []
 		for y in range(0, SIZE):
 			for x in range(0, SIZE):
 				a.append((y, x))
 		return a
 
-	def get_all_water_cells(self):
+	def getAllWaterCells(self):
 		a = []
 		for y in range(0, SIZE, 2):
 			b = []
@@ -27,23 +54,7 @@ class Map_():
 			a = a + b
 		return a
 
-	def __init__(self):
-		self.place_for = {}
-		self.geo = [[None for i in range(0, SIZE)] for y in range(0, SIZE)]
-		self.wonder = [[None for i in range(0, SIZE)] for y in range(0, SIZE)]
-		self.place_for['forest'] = self.get_all_cells()
-		self.place_for['plain'] = self.get_all_cells()
-		self.place_for['water'] = self.get_all_water_cells()
-		self.place_for['wonder_on_ground'] = self.get_all_cells()
-		self.place_for['wonder_on_water'] = []
-		self.place_for['goal'] = self.get_all_cells()
-		self.place_for['player'] =self. get_all_cells()
-		self.place_for['npc'] = self.get_all_cells()
-		self.placed = {}
-		self.placed['water'] = []
-		self.placed['forest'] = []
-
-	def get_color(self, y, x):
+	def getColor(self, y, x):
 		if self.geo[y][x] == None:
 			return COLOR_NONE
 		if self.geo[y][x] == FOREST:
@@ -51,7 +62,7 @@ class Map_():
 		if self.geo[y][x] == WATER:
 			return COLOR_WATER
 
-	def update_plains(self):
+	def updatePlains(self):
 		self.placed['plain'] = []
 		for y in range(0, SIZE):
 			for x in range(0, SIZE):
@@ -59,91 +70,112 @@ class Map_():
 					round.placed['plain'].append((y, x))
 
 
-	def place_forest(self, count):
-		random.shuffle(self.place_for['forest'])
-		while count > 0 and len(self.place_for['forest']) > 0:
-			y, x = self.place_for['forest'][0]
+	def placeForest(self, count):
+		random.shuffle(self.placeFor['forest'])
+		while count > 0 and len(self.placeFor['forest']) > 0:
+			y, x = self.placeFor['forest'][0]
 			self.geo[y][x] = FOREST
-			if (y,x) in self.place_for['water']:
-				self.place_for['water'].remove((y,x))
-			self.place_for['forest'].remove((y,x))
-			self.place_for['wonder_on_ground'].remove((y,x))
+			if (y,x) in self.placeFor['water']:
+				self.placeFor['water'].remove((y,x))
+			self.placeFor['forest'].remove((y,x))
+			self.placeFor['wonderOnGround'].remove((y,x))
 			count = count - 1
 			self.placed['forest'].append((y, x))
 
-	def place_water(self, count):
-		random.shuffle(self.place_for['water'])
-		while count > 0 and len(self.place_for['water']) > 0:
-			y, x = self.place_for['water'][0]
+	def placeWater(self, count):
+		random.shuffle(self.placeFor['water'])
+		while count > 0 and len(self.placeFor['water']) > 0:
+			y, x = self.placeFor['water'][0]
 			self.geo[y][x] = WATER
 			self.placed['water'].append((y, x))
-			self.place_for['water'].remove((y,x))
-			self.place_for['wonder_on_ground'].remove((y,x))
-			self.place_for['forest'].remove((y,x))
-			self.place_for['player'].remove((y,x))
-			self.place_for['npc'].remove((y,x))
-			self.place_for['goal'].remove((y,x))
-			self.place_for['wonder_on_water'].append((y, x))
+			self.placeFor['water'].remove((y,x))
+			self.placeFor['wonderOnGround'].remove((y,x))
+			self.placeFor['forest'].remove((y,x))
+			self.placeFor['player'].remove((y,x))
+			self.placeFor['npc'].remove((y,x))
+			self.placeFor['goal'].remove((y,x))
+			self.placeFor['wonderOnWater'].append((y, x))
 			count  = count - 1
 
-	def place_wonder(self, count):
-		wonder_on_water = ["Con Dao Islands", "Tam Coc", "My Khe Beach", "Cham Islands", "Mekong Delta", "Phu Quoc"]
-		wonder_on_ground = ["Khai Dinh Tomb", "a village", "Marble Mountains", "Hang Son Doong Cave", "Temple of Literature", "Bac Ha", "Hang Nga's Guesthouse", "Cao Dai Temple", "Imperial Citadel", "Mui Ne", "Sa Pa Terraces", "Thien Mu Pagoda"]
-		random.shuffle(wonder_on_ground)
-		random.shuffle(wonder_on_water)
-		random.shuffle(self.place_for['wonder_on_water'])
-		random.shuffle(self.place_for['wonder_on_ground'])
+	def placeWonder(self, count):
+		wonderOnWater = []
+		wonderOnWater.append(Wonder("Con Dao Islands", 20))
+		wonderOnWater.append(Wonder("Tam Coc", 0))
+		wonderOnWater.append(Wonder("My Khe Beach)", 10))
+		wonderOnWater.append(Wonder("Cham Islands)", 10))
+		wonderOnWater.append(Wonder("Mekong Delta)", 20))
+		wonderOnWater.append(Wonder("Phu Quoc", 10))
+		wonderOnWater.append(Wonder("Mui Ne", 10))
+		wonderOnGround = []
+		wonderOnGround.append(Wonder("Khai Dinh Tomb", 0))
+		wonderOnGround.append(Wonder("Marble Mountains", 20))
+		wonderOnGround.append(Wonder("Hang Son Doong Cave", 0))
+		wonderOnGround.append(Wonder("Temple of Literature", 0))
+		wonderOnGround.append(Wonder("Bac Ha", 10))
+		wonderOnGround.append(Wonder("Hang Nga's Guesthouse", 0))
+		wonderOnGround.append(Wonder("Cao Dai Temple", 0))
+		wonderOnGround.append(Wonder("Imperial Citadel", 10))
+		wonderOnGround.append(Wonder("Sa Pa Terraces", 25))
+		wonderOnGround.append(Wonder("Thien Mu Pagoda", 15))
+		wonderOnGround.append(Wonder("Yen Tu Mountain", 30))
+		wonderOnGround.append(Wonder("Phu Si Lung", 30))
+		wonderOnGround.append(Wonder("Fansipan", 60))
+		random.shuffle(wonderOnGround)
+		random.shuffle(wonderOnWater)
+		random.shuffle(self.placeFor['wonderOnWater'])
+		random.shuffle(self.placeFor['wonderOnGround'])
 		while True:
 			if count == 0:
 				break
-			water_possible = True
-			ground_possible = True
-			if len(wonder_on_ground) == 0:
-				ground_possible = False
-			if len(wonder_on_water) == 0:
-				water_possible = False
-			if len(self.place_for['wonder_on_ground']) == 0:
-				ground_possible = False
-			if len(self.place_for['wonder_on_water']) == 0:
-				water_possible = False
-			if (not water_possible) and (not ground_possible):
+			waterPossible = True
+			groundPossible = True
+			if len(wonderOnGround) == 0:
+				groundPossible = False
+			if len(wonderOnWater) == 0:
+				waterPossible = False
+			if len(self.placeFor['wonderOnGround']) == 0:
+				groundPossible = False
+			if len(self.placeFor['wonderOnWater']) == 0:
+				waterPossible = False
+			if (not waterPossible) and (not groundPossible):
 				break
-			if not water_possible:
-				on_water = False
-			elif not ground_possible:
-				on_water = True
+			if not waterPossible:
+				onWater = False
+			elif not groundPossible:
+				onWater = True
 			else:
-				on_water = random.randrange(0, 4) == 3
-			if on_water:
-				wonder = wonder_on_water.pop(0)
-				y, x = self.place_for['wonder_on_water'].pop(0)
+				onWater = random.randrange(0, 4) == 3
+			if onWater:
+				wonder = wonderOnWater.pop(0)
+				y, x = self.placeFor['wonderOnWater'].pop(0)
 			else:
-				wonder = wonder_on_ground.pop(0)
-				y, x = self.place_for['wonder_on_ground'].pop(0)
-			self.wonder[y][x] = wonder
+				wonder = wonderOnGround.pop(0)
+				y, x = self.placeFor['wonderOnGround'].pop(0)
+			self.wonderLocation.append(PlacedWonder(wonder, y, x, onWater))
+			self.wonder[y][x] = wonder.name
 			count = count - 1
 
-	def place(self, count_water, count_forest, count_wonder):
-		self.place_water(count_water)
-		self.place_forest(count_forest)
-		self.place_wonder(count_wonder)
+	def place(self, countWater, countForest, countWonder):
+		self.placeWater(countWater)
+		self.placeForest(countForest)
+		self.placeWonder(countWonder)
 
-	def get_goal_location(self):
-		if len(self.place_for['goal']) > 0:
-			random.shuffle(self.place_for['goal'])
-			return self.place_for['goal'].pop()
+	def getGoalLocation(self):
+		if len(self.placeFor['goal']) > 0:
+			random.shuffle(self.placeFor['goal'])
+			return self.placeFor['goal'].pop()
 		else:
 			return (-1, -1)
 
-	def get_team_player_location(self):
-		random.shuffle(self.place_for['player'])
-		return self.place_for['player'][0]
+	def getTeamPlayerLocation(self):
+		random.shuffle(self.placeFor['player'])
+		return self.placeFor['player'][0]
 
-	def get_team_npc_location(self):
-		random.shuffle(self.place_for['npc'])
-		return self.place_for['npc'][0]
+	def getTeamNpcLocation(self):
+		random.shuffle(self.placeFor['npc'])
+		return self.placeFor['npc'][0]
 
-	def get_team_npc_patrol_location(self, our_y, our_x):
-		return [(y, x) for (y, x) in self.place_for['npc'] if (x != our_x or y != our_y) and ((abs(x - our_x) <= 1) and (abs(y - our_y) <= 1))]
+	def getTeamNpcPatrolLocation(self, ourY, ourX):
+		return [(y, x) for (y, x) in self.placeFor['npc'] if (x != ourX or y != ourY) and ((abs(x - ourX) <= 1) and (abs(y - ourY) <= 1))]
 
 

@@ -27,12 +27,14 @@ QUERY_NEXT = 0 # query not complete
 SIZE = 20
 CELL_RESOLUTION = 5
 
+DISTANCE_WONDER = 30 # on peut pas voir un truc important au delà de 30 km (c'est très moyen ça, ça dépend du truc qu'on regarde, il faut que je revoie ma liste)
+
 COUNT_PLAYER_TEAMS = 3
 COUNT_NPC_TEAMS = round(0.1 * SIZE * SIZE)
 NPC_TEAMS_AVG_SIZE = (10, 5)
 PLAYER_TEAMS_AVG_SIZE = (25, 10)
 
-SPEED_FACTOR = 1 # 1 normal, 2 faster
+SPEED_FACTOR = 1000 # 1 normal, 2 faster
 
 DEBUG = False
 SUPERMAN = False
@@ -41,6 +43,7 @@ COUNT_FOREST = round(0.2 * SIZE * SIZE)
 COUNT_WATER = round(0.2 * SIZE * SIZE)
 COUNT_WONDER = round(0.2 * SIZE * SIZE)
 GOAL_COUNT = 2
+
 
 #debug
 

@@ -8,24 +8,24 @@ class Command():
 	def __init__(self):
 		self.id = None
 		self.when = None
-		self.auto_repeat = False
-		self.factor_duration = 1 #used when moving in diag, could be used if less than x ppl when u work
+		self.autoRepeat = False
+		self.factorDuration = 1 #used when moving in diag, could be used if less than x ppl when u work
 		self.priority = None
-		self.remove_lower = False # if accepted, remove anythg under it
+		self.removeLower = False # if accepted, remove anythg under it
 # like moving will remove all tasks with similar priority (moving and working)
 		self.blocking = False # if True, then won't accept any lower priority tasks
-		self.remove_similar = True # default behavior, we remove similar requests
-		self.can_be_removed = True # false if cannot be removed, like patrolling for a NPC
-		self.remove_group = []
+		self.removeSimilar = True # default behavior, we remove similar requests
+		self.canBeRemoved = True # false if cannot be removed, like patrolling for a NPC
+		self.removeGroup = []
 		self.group = None
 
-	def get_duration(self):
+	def getDuration(self):
 		d = self.duration[0]
 		if self.duration[1] != None:
 			d = d + self.rand(self.duration[1])
 		d = d / SPEED_FACTOR
-		d = d * self.factor_duration
-		self.calculated_duration = d
+		d = d * self.factorDuration
+		self.calculatedDuration = d
 		return d
 
 	def rand(self, delta):
@@ -62,9 +62,9 @@ class CommandMove(Command):
 		self.duration = (60, 10)
 		super().__init__()
 		self.direction = None
-		self.auto_repeat = True
+		self.autoRepeat = True
 		self.priority = 1
-		self.remove_group = 'M'
+		self.removeGroup = 'M'
 		self.group = 'M'
 
 class CommandMoveOnce(Command):
@@ -72,9 +72,9 @@ class CommandMoveOnce(Command):
 		self.duration = (60, 10)
 		super().__init__()
 		self.direction = None
-		self.auto_repeat = False
+		self.autoRepeat = False
 		self.priority = 1
-		self.remove_group = 'M'
+		self.removeGroup = 'M'
 		self.group = 'M'
 
 class CommandAskWork(Command):
@@ -91,15 +91,15 @@ class CommandDoWork(Command):
 		self.priority = 1
 
 class CommandFight(Command):
-	def __init__(self, count_before):
+	def __init__(self, countBefore):
 		self.duration = (5, 1)
 		super().__init__()
-		self.auto_repeat = True
+		self.autoRepeat = True
 		self.killed = 0
 		self.priority = 5
-		self.remove_lower = True
+		self.removeLower = True
 		self.blocking = True
-		self.count_before = count_before
+		self.countBefore = countBefore
 
 class CommandStop(Command):
 	def __init__(self):
@@ -114,9 +114,9 @@ class CommandPatrol(Command):
 		self.locations = locations
 		self.x = x
 		self.y = y
-		self.auto_repeat = True
+		self.autoRepeat = True
 		self.priority = 3
-		self.can_be_removed = False
+		self.canBeRemoved = False
 
 class CommandAskGetDirections(Command):
 	def __init__(self):
@@ -148,7 +148,7 @@ class ParseQueryToCommand():
 				obj = CommandMoveOnce()
 			obj.direction = query[2]['code']
 			if len(obj.direction) > 1: #trick: ne is diag, n is straight
-				obj.factor_duration = 1.4 # sqr 2
+				obj.factorDuration = 1.4 # sqr 2
 		if query[1]['code'] == COMMAND_WORK:
 			obj = CommandAskWork()
 		obj.id = query[0]['code']
@@ -158,40 +158,40 @@ class Commands():
 	def __init__(self):
 		self.list = []
 
-	def remove_command(self, i):
+	def removeCommand(self, i):
 		removed = self.list[i]
 		for c in self.list[i:]:
-			c.when = c.when - datetime.timedelta(seconds = removed.calculated_duration) # when we inserted the task, we added that delay, so we simply remove it
+			c.when = c.when - datetime.timedelta(seconds = removed.calculatedDuration) # when we inserted the task, we added that delay, so we simply remove it
 		removed = self.list.pop(i)
 
-	def insert_command(self, i, command):
+	def insertCommand(self, i, command):
 		for c in self.list[i:]:
-			c.when = c.when + datetime.timedelta(seconds = command.calculated_duration) # when we inserted the task, we added that delay, so we simply remove it
+			c.when = c.when + datetime.timedelta(seconds = command.calculatedDuration) # when we inserted the task, we added that delay, so we simply remove it
 		self.list.insert(i, command)
 
-	def calculate_when(self, command, command_index):
-		if command_index == 0:
-			previous_command_time = datetime.datetime.now()
+	def calculateWhen(self, command, commandIndex):
+		if commandIndex == 0:
+			previousCommandTime = datetime.datetime.now()
 		else:
-			previous_command_time = self.list[command_index - 1].when
-		command.when = previous_command_time + datetime.timedelta(seconds = command.get_duration())
+			previousCommandTime = self.list[commandIndex - 1].when
+		command.when = previousCommandTime + datetime.timedelta(seconds = command.getDuration())
 
 	def add(self, command):
 #TODO handle blocking
 		l = [0] + [command.priority for command in self.list if command.blocking]
-		highest_current_priority = max(l)
-		if command.priority <= highest_current_priority:
+		highestCurrentPriority = max(l)
+		if command.priority <= highestCurrentPriority:
 			return False
 
-		if command.remove_similar:
+		if command.removeSimilar:
 			for i in range(len(self.list) - 1, -1, -1):
 				if isinstance(command, self.list[i].__class__):
-					self.remove_command(i)
+					self.removeCommand(i)
 
-		for group in  command.remove_group:
+		for group in  command.removeGroup:
 			for i in range(len(self.list) - 1, -1, -1):
 				if command.group == group:
-					self.remove_command(i)
+					self.removeCommand(i)
 
 		rank = None
 		for i in range(0, len(self.list)):
@@ -206,7 +206,7 @@ class Commands():
 			rank = len(self.list)
 # we remove all inferior or equal priorities if the command says so
 
-		if command.remove_lower:
+		if command.removeLower:
 			i = 0
 			while i < len(self.list):
 				c = self.list[i]
@@ -215,21 +215,21 @@ class Commands():
 					if i >= len(self.list):
 						break
 				else:
-					if self.list[i].can_be_removed:
-						self.remove_command(i)
+					if self.list[i].canBeRemoved:
+						self.removeCommand(i)
 					else:
 						i = i + 1
-		self.calculate_when(command, rank)
-		self.insert_command(rank, command)
+		self.calculateWhen(command, rank)
+		self.insertCommand(rank, command)
 		return True
 
 	def debug(self):
 		a = []
 		for command in self.list:
-			a.append("type:%s, duration: %0.0f, when: %s" % (str(command), command.calculated_duration, command.when.strftime("%H:%M:%S")))
+			a.append("type:%s, duration: %0.0f, when: %s" % (str(command), command.calculatedDuration, command.when.strftime("%H:%M:%S")))
 		return "\n".join(a)
 
-	def get_debug_letters(self):
+	def getDebugLetters(self):
 		a = ""
 		for command in self.list:
 			if isinstance(command, CommandLook):

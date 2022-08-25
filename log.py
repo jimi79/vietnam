@@ -1,5 +1,6 @@
 from const import *
 from team import *
+from writelog import *
 import time
 
 class Log():
@@ -11,46 +12,46 @@ class Log():
 		self.positions = []
 		self.goals = []
 
-	def fight_change(self, player_teams):
-		current_fights = [t.nato for t in player_teams.list if isinstance(t, TeamInfantry) and t.get_alive() and t.fighting]
-		if current_fights != self.fights:
-			self.fights = current_fights
+	def fightChange(self, playerTeams):
+		currentFights = [t.nato for t in playerTeams.list if isinstance(t, TeamInfantry) and t.getAlive() and t.fighting]
+		if currentFights != self.fights:
+			self.fights = currentFights
 			return True
 		else:
 			return False
 
-	def position_changed(self, player_teams):
-		current_positions = []
-		for team in player_teams.list:
+	def positionChanged(self, playerTeams):
+		currentPositions = []
+		for team in playerTeams.list:
 			if isinstance(team, TeamInfantry):
 				if not(team.exited):
-					current_positions.append([team.x, team.y])
-		if self.positions != current_positions:
-			self.positions = current_positions
+					currentPositions.append([team.x, team.y])
+		if self.positions != currentPositions:
+			self.positions = currentPositions
 			return True
 		else:
 			return False 
 
-	def goal_changed(self, goals):
-		current_goals = [g.name for g in goals.list if (not(g.done))]
+	def goalChanged(self, goals):
+		currentGoals = [g.name for g in goals.list if (not(g.done))]
 		if self.goals == []:
-			self.goals = current_goals
-		if current_goals != self.goals:
-			self.goals = current_goals
+			self.goals = currentGoals
+		if currentGoals != self.goals:
+			self.goals = currentGoals
 			return True
 		else:
 			return False 
 
-	def get_update_reason(self, player_teams, goals):
-		if self.fight_change(player_teams): 
+	def getUpdateReason(self, playerTeams, goals):
+		if self.fightChange(playerTeams): 
 			return "Fight update"
-		if self.goal_changed(goals):
+		if self.goalChanged(goals):
 			return "Goal achived"
-		if self.position_changed(player_teams):
+		if self.positionChanged(playerTeams):
 			return "Position update"
 		return None
 
-	def add_log(self, stime, map_, player_teams, npc_teams, goals, update_reason, term):
+	def addLog(self, stime, map_, playerTeams, npcTeams, goals, updateReason, term):
 		# if date is more than xx seconds / speed thing, then log
 		if not self.truncated:
 			self.truncated = True
@@ -58,7 +59,7 @@ class Log():
 
 		self.date = datetime.datetime.now()
 		s = self.delimiter + '\n'
-		s = s + "%s, %s\n" % (stime, update_reason)
+		s = s + "%s, %s\n" % (stime, updateReason)
 		for y in range(0, SIZE):
 			for x in range(0, SIZE):
 				if map_.geo[y][x] == None:
@@ -68,8 +69,8 @@ class Log():
 				elif map_.geo[y][x] == WATER:
 					c = "\033[48;5;21m"
 
-				good_guys = " "
-				bad_guys = " "
+				goodGuys = " "
+				badGuys = " "
 				goal = " "
 
 				for g in goals.list:
@@ -80,37 +81,38 @@ class Log():
 							if not g.done:
 								goal = 'G'
 
-				if len([t for t in npc_teams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.get_exists()]) > 0:
-					bad_guys = '+'
+				if len([t for t in npcTeams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.getExists()]) > 0:
+					badGuys = '+'
 
-				l = [t for t in player_teams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.get_exists()]
+				l = [t for t in playerTeams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.getExists()]
 				if len(l) > 0:
-					good_guys = l[0].letter
+					goodGuys = l[0].letter
 
-				if len([t for t in player_teams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.get_alive() and t.fighting]) > 0:
+				if len([t for t in playerTeams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.getAlive() and t.fighting]) > 0:
 					c = "\033[48;5;196m"
 
-				s = s + c + good_guys + bad_guys + goal
+				s = s + c + goodGuys + badGuys + goal
 			s = s + '\033[0m\n'
-		f = open("log", "a")
-		f.write(s)
-		f.close()
+			self.write(s)
+
+	def write(self, s):
+		WriteLog().write(s)
 
 	def replay(self, speed):
 		if speed == None:
 			speed = 1
 		print("\033[2J\033[1;1H", end = "")
 		f = open("log", "r")
-		first_delimiter = True
+		firstDelimiter = True
 		while True:
 			line = f.readline()
 			if not line:
 				break
 			if line.strip() == self.delimiter:
-				if not first_delimiter:
+				if not firstDelimiter:
 					time.sleep(1 / speed)
 				else:
-					first_delimiter = False
+					firstDelimiter = False
 				print("\033[2J\033[1;1H", end = "")
 			else:
 				print(line, end = "")
