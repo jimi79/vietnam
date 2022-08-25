@@ -51,7 +51,7 @@ class Log():
 			return "Position update"
 		return None
 
-	def addLog(self, stime, map_, playerTeams, npcTeams, goals, updateReason, term):
+	def addLog(self, stime, map_, playerTeams, npcTeams, wonders, goals, updateReason, term):
 		# if date is more than xx seconds / speed thing, then log
 		if not self.truncated:
 			self.truncated = True
@@ -71,15 +71,19 @@ class Log():
 
 				goodGuys = " "
 				badGuys = " "
-				goal = " "
+				other = " "
+
+				for w in wonders:
+					if w.x == x and w.y == y:
+						other = 'W'
 
 				for g in goals.list:
 					if g.x == x and g.y == y:
 						if isinstance(g, EndGoal):
-							goal = 'E'
+							other = 'E'
 						else:
 							if not g.done:
-								goal = 'G'
+								other = 'G'
 
 				if len([t for t in npcTeams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.getExists()]) > 0:
 					badGuys = '+'
@@ -91,7 +95,7 @@ class Log():
 				if len([t for t in playerTeams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.getAlive() and t.fighting]) > 0:
 					c = "\033[48;5;196m"
 
-				s = s + c + goodGuys + badGuys + goal
+				s = s + c + goodGuys + badGuys + other
 			s = s + '\033[0m\n'
 			self.write(s)
 

@@ -34,7 +34,7 @@ class Map_():
 		self.placed = {}
 		self.placed['water'] = []
 		self.placed['forest'] = []
-		self.wonderLocation = [] # all locations in the form of (x,y)
+		self.placedWonders = [] 
 
 	def getAllCells(self):
 		a = []
@@ -151,7 +151,7 @@ class Map_():
 			else:
 				wonder = wonderOnGround.pop(0)
 				y, x = self.placeFor['wonderOnGround'].pop(0)
-			self.wonderLocation.append(PlacedWonder(wonder, y, x, onWater))
+			self.placedWonders.append(PlacedWonder(wonder, y, x, onWater))
 			self.wonder[y][x] = wonder.name
 			count = count - 1
 

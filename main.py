@@ -50,7 +50,7 @@ class Main():
 
 		updateReason = self.log.getUpdateReason(self.playerTeams, self.goals)
 		if updateReason:
-			self.log.addLog(self.term.getTime(), self.map, self.playerTeams, self.npcTeams, self.goals, updateReason, self.term)
+			self.log.addLog(self.term.getTime(), self.map, self.playerTeams, self.npcTeams, self.map.placedWonders, self.goals, updateReason, self.term)
 
 		end = False
 		if ALL_ALIVE_TEAMS_EXITED in a:

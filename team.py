@@ -98,9 +98,8 @@ class TeamInfantry(Team):
 		return y, x 
 
 	def lookForWonders(self, y, x):
-		WriteLog().write('y = %d, x = %d' % (y, x))
 		res = [] # list of strings
-		for wonder in self.map.wonderLocation:
+		for wonder in self.map.placedWonders:
 			destY = wonder.y
 			destX = wonder.x
 			distance = getDistance(y, x, destY, destX)
