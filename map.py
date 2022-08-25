@@ -101,9 +101,9 @@ class Map_():
 		wonderOnWater = []
 		wonderOnWater.append(Wonder("Con Dao Islands", 20))
 		wonderOnWater.append(Wonder("Tam Coc", 0))
-		wonderOnWater.append(Wonder("My Khe Beach)", 10))
-		wonderOnWater.append(Wonder("Cham Islands)", 10))
-		wonderOnWater.append(Wonder("Mekong Delta)", 20))
+		wonderOnWater.append(Wonder("My Khe Beach", 10))
+		wonderOnWater.append(Wonder("Cham Islands", 10))
+		wonderOnWater.append(Wonder("Mekong Delta", 20))
 		wonderOnWater.append(Wonder("Phu Quoc", 10))
 		wonderOnWater.append(Wonder("Mui Ne", 10))
 		wonderOnGround = []
