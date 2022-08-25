@@ -21,7 +21,8 @@ class Team():
 	def get_direction(self, desty, destx):
 		y = self.y
 		x = self.x
-		angle = math.degrees(math.atan2(desty - y, destx - x))
+		#angle = math.degrees(math.atan2(desty - y, destx - x))
+		angle = math.degrees(math.atan2(y - desty, x - destx))
 		sd = ["east", "south east", "south", "south west", "west", "north west", "north", "north east"] 
 		return angle, sd[round(angle / 45) % 8]
 

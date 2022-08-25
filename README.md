@@ -22,7 +22,8 @@ You have 4 teams:
 
 # what the Helicopter can do:
 * get directions / reckon
-they will report you the direction of each team to each objective
+They will report you the direction of each team to each objective
+Note that when the heli says that a team is at the north of a goal, it means the team has to go south to reach it.
 
 # objectives:
 * there are 3 objects: 

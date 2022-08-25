@@ -14,6 +14,13 @@ random_end_goals = [
 ]
 
 class Goals():
+	def __init__(self, map_):
+		self.list = []
+		self.map = map_
+		for i in range(0, GOAL_COUNT):
+			self.add_random_goal(random_goals)
+		self.add_random_goal(random_end_goals)
+
 	def add_random_goal(self, list_):
 		random.shuffle(list_)
 		y, x = self.map.get_goal_location()
@@ -23,13 +30,6 @@ class Goals():
 				goal.y = y
 				goal.x = x
 				self.list.append(goal)
-
-	def __init__(self, map_):
-		self.list = []
-		self.map = map_
-		for i in range(0, GOAL_COUNT):
-			self.add_random_goal(random_goals)
-		self.add_random_goal(random_end_goals)
 
 	def get_pending_list(self):
 		return [g for g in self.list if not g.done]
