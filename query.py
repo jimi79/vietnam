@@ -31,7 +31,8 @@ class Query():
 			self.pos = {
 				'name': 'team', 
 				'values': 
-					{a.letter:
+					{
+						a.letter:
 						{
 							'text': 'team %s' % a.nato,
 							'code': a.id,
