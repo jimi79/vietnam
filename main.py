@@ -50,7 +50,7 @@ class Main():
 
 		updateReason = self.log.getUpdateReason(self.playerTeams, self.goals)
 		if updateReason:
-			self.log.addLog(self.term.getTime(), self.map, self.playerTeams, self.npcTeams, self.map.placedWonders, self.goals, updateReason, self.term)
+			self.log.writeLog(self.term.getTime(), self.map, self.playerTeams, self.npcTeams, self.map.placedWonders, self.goals, updateReason, self.term)
 
 		end = False
 		if ALL_ALIVE_TEAMS_EXITED in a:
@@ -62,20 +62,6 @@ class Main():
 			a = stdscr.getch() # no halfkey here
 			return False
 		return True
-
-	def printMap(self, win):
-		win.clear()
-		for y in range(0, SIZE):
-			for x in range(0, SIZE):
-				c = self.map.getColor(y, x)
-				ch = ' '
-				if self.npcTeams.getChar(y, x):
-					ch = 'N'
-				if self.playerTeams.getChar(y, x):
-					ch = 'P'
-				win.addstr(ch, curses.colorPair(c))
-			win.addstr("\n")
-		win.refresh()
 
 	def getKey(self, stdscr):
 		curses.halfdelay(10) #nocbreak to cancel
@@ -93,22 +79,29 @@ class Main():
 	def getHelp(self, query):
 		self.term.updateQuery(', '.join(query.getHelp()))
 
+	def writeEveryWhere(self, s):
+		self.term.addLog(s)
+		self.log.write(s + "\n")
+
 	def logGoals(self):
-		if DEBUG:
-			for goal in self.goals.list:
-				self.term.addLog("%s at (%d, %d), done:%s, duration: %0.0f" % (goal.name, goal.y, goal.x, "True" if goal.done else "False", goal.duration))
+		for goal in self.goals.list:
+			self.writeEveryWhere("%s at (%d, %d), done:%s, duration: %0.0f" % (goal.name, goal.y, goal.x, "True" if goal.done else "False", goal.duration))
 
 	def getAllTeamsStatus(self):
 		return self.playerTeams.getAllTeamsStatus()
 
 	def logStatus(self):
 		a = self.getAllTeamsStatus()
-		self.term.addLog(", ".join(a))
+		self.writeEveryWhere(", ".join(a))
 
 	def logLocations(self):
 		p = "player: %s" % ", ".join(self.playerTeams.getDebugInfos())
 		n = "npc: %s" % ", ".join(self.npcTeams.getDebugInfos())
-		self.term.addLog("%s\n%s" % (p, n))
+		self.writeEveryWhere("%s\n%s" % (p, n))
+
+	def logWonders(self):
+		for wonder in self.map.placedWonders:
+			self.writeEveryWhere("%s (%d, %d)" % (wonder.wonder.name, wonder.y, wonder.x))
 
 	def logTasks(self):
 		s = []
@@ -118,7 +111,7 @@ class Main():
 		s.append("NPC's teams:")
 		for team in self.npcTeams.list:
 			s.append("%s: %s" % (team.nato, team.commands.debug()))
-		self.term.addLog("\n".join(s))
+		self.writeEveryWhere("\n".join(s))
 
 	def run(self, stdscr):
 		self.init(stdscr)
@@ -151,7 +144,7 @@ class Main():
 					elif k == ord('4'):
 						self.logTasks()
 					elif k == ord('5'):
-						self.printMap(self.term.logWin)
+						self.logWonders()
 
 				if k == ord('Q'):
 					if self.confirm(stdscr):

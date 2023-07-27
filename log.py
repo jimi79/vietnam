@@ -51,15 +51,10 @@ class Log():
 			return "Position update"
 		return None
 
-	def addLog(self, stime, map_, playerTeams, npcTeams, wonders, goals, updateReason, term):
-		# if date is more than xx seconds / speed thing, then log
-		if not self.truncated:
-			self.truncated = True
-			open("log", "w").close() # i assume that truncates
-
-		self.date = datetime.datetime.now()
-		s = self.delimiter + '\n'
-		s = s + "%s, %s\n" % (stime, updateReason)
+	def writeMap(self, map_, playerTeams, npcTeams, wonders, goals, updateReason, term):
+		idWonder = 0
+		wondersLegend = []
+		s = ""
 		for y in range(0, SIZE):
 			for x in range(0, SIZE):
 				if map_.geo[y][x] == None:
@@ -73,9 +68,11 @@ class Log():
 				badGuys = " "
 				other = " "
 
-				for w in wonders:
+				for w in wonders[0:10]:
 					if w.x == x and w.y == y:
-						other = 'W'
+						idWonder = idWonder + 1
+						other = str(idWonder)
+						wondersLegend.append("%d: %s" % (idWonder, w.wonder.name))
 
 				for g in goals.list:
 					if g.x == x and g.y == y:
@@ -95,9 +92,24 @@ class Log():
 				if len([t for t in playerTeams.list if isinstance(t, TeamInfantry) and t.x == x and t.y == y and t.getAlive() and t.fighting]) > 0:
 					c = "\033[48;5;196m"
 
-				s = s + c + goodGuys + badGuys + other
-			s = s + '\033[0m\n'
-			self.write(s)
+				s += c + goodGuys + badGuys + other
+			s += '\033[0m\n'
+		s += "legend:\n"
+		s += "\n".join(wondersLegend)
+		s += '\n'
+		return s
+
+	def writeLog(self, stime, map_, playerTeams, npcTeams, wonders, goals, updateReason, term):
+		# if date is more than xx seconds / speed thing, then log
+		if not self.truncated:
+			self.truncated = True
+			open("log", "w").close() # i assume that truncates
+
+		self.date = datetime.datetime.now()
+		s = self.delimiter + '\n'
+		s = s + "%s, %s\n" % (stime, updateReason)
+		s = s + self.writeMap(map_, playerTeams, npcTeams, wonders, goals, updateReason, term)
+		self.write(s)
 
 	def write(self, s):
 		WriteLog().write(s)

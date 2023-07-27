@@ -39,19 +39,18 @@ SUPERMAN = False
 
 COUNT_FOREST = round(0.2 * SIZE * SIZE)
 COUNT_WATER = round(0.2 * SIZE * SIZE)
-COUNT_WONDER = round(0.2 * SIZE * SIZE)
+COUNT_WONDER = min(9, round(0.05 * SIZE * SIZE)) # max to 9 because in the log, we use numbers from 1 to 9 to reference them. If it's more than 9, it will not be shown on the map
 GOAL_COUNT = 2
 
 
 #debug
 
 if DEBUG:
-	COUNT_FOREST = 0
-	COUNT_WONDER = 0
-	SIZE = 8
-	COUNT_WATER = 0
+	#COUNT_FOREST = 0
+	#COUNT_WONDER = 2
+	#SIZE = 8
+	COUNT_WATER = 10
 	SPEED_FACTOR = 20 # 1 normal, 2 faster
-	DEBUG = True
-	COUNT_NPC_TEAMS = 10
+	#COUNT_NPC_TEAMS = 0
 	#GOAL_COUNT = 5
 	#SUPERMAN = True

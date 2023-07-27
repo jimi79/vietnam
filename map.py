@@ -1,6 +1,7 @@
 import copy
 from const import *
 from goals import *
+from log import *
 
 COLOR_NONE = 0
 COLOR_FOREST = 1
@@ -29,7 +30,7 @@ class Map_():
 		self.placeFor['wonderOnGround'] = self.getAllCells()
 		self.placeFor['wonderOnWater'] = []
 		self.placeFor['goal'] = self.getAllCells()
-		self.placeFor['player'] =self. getAllCells()
+		self.placeFor['player'] = self.getAllCells()
 		self.placeFor['npc'] = self.getAllCells()
 		self.placed = {}
 		self.placed['water'] = []
@@ -99,28 +100,24 @@ class Map_():
 
 	def placeWonder(self, count):
 		wonderOnWater = []
-		wonderOnWater.append(Wonder("Con Dao Islands", 20))
-		wonderOnWater.append(Wonder("Tam Coc", 0))
-		wonderOnWater.append(Wonder("My Khe Beach", 10))
-		wonderOnWater.append(Wonder("Cham Islands", 10))
-		wonderOnWater.append(Wonder("Mekong Delta", 20))
-		wonderOnWater.append(Wonder("Phu Quoc", 10))
-		wonderOnWater.append(Wonder("Mui Ne", 10))
+		wonderOnWater.append(Wonder("Tam Coc", 15)) # swamps with mountains around
+		wonderOnWater.append(Wonder("My Khe Beach", 10)) # beach
+		wonderOnWater.append(Wonder("Mui Ne", 10)) # beach
 		wonderOnGround = []
-		wonderOnGround.append(Wonder("Khai Dinh Tomb", 0))
-		wonderOnGround.append(Wonder("Marble Mountains", 20))
-		wonderOnGround.append(Wonder("Hang Son Doong Cave", 0))
-		wonderOnGround.append(Wonder("Temple of Literature", 0))
-		wonderOnGround.append(Wonder("Bac Ha", 10))
-		wonderOnGround.append(Wonder("Hang Nga's Guesthouse", 0))
-		wonderOnGround.append(Wonder("Cao Dai Temple", 0))
-		wonderOnGround.append(Wonder("Imperial Citadel", 10))
-		wonderOnGround.append(Wonder("Sa Pa Terraces", 25))
+		wonderOnGround.append(Wonder("Khai Dinh Tomb", 0)) # some tomb
+		wonderOnGround.append(Wonder("Marble Mountains", 20)) # a mountain in the middle of a village, but not very high
+		wonderOnGround.append(Wonder("Hang Son Doong Cave", 0)) # cave, so not visible
+		wonderOnGround.append(Wonder("Temple of Literature", 0)) # some temple
+		wonderOnGround.append(Wonder("Bac Ha", 10)) # some district, but there is a castle
+		wonderOnGround.append(Wonder("Hang Nga's Guesthouse", 0)) # some weird hotel like facteur cheval's
+		wonderOnGround.append(Wonder("Cao Dai Temple", 0)) # temple
+		wonderOnGround.append(Wonder("Imperial Citadel", 10)) # citadel
+		wonderOnGround.append(Wonder("Sa Pa Terraces", 25)) 
 		wonderOnGround.append(Wonder("Thien Mu Pagoda", 15))
-		wonderOnGround.append(Wonder("Yen Tu Mountain", 30))
-		wonderOnGround.append(Wonder("Phu Si Lung", 30))
-		wonderOnGround.append(Wonder("Fansipan", 60))
+		wonderOnGround.append(Wonder("Yen Tu Mountain", 50))
+		wonderOnGround.append(Wonder("Phu Si Lung", 30)) # some mountains
 		random.shuffle(wonderOnGround)
+		wonderOnGround.insert(0, Wonder("Fansipan", 200)) # bc it's big, so we always place it
 		random.shuffle(wonderOnWater)
 		random.shuffle(self.placeFor['wonderOnWater'])
 		random.shuffle(self.placeFor['wonderOnGround'])
