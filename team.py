@@ -354,8 +354,8 @@ class TeamHelicopter(Team):
 			else:
 				s.append("team %s was not spotted." % team.nato)
 		s.append("we're going back to the base.")
-		for a in s:
-			self.addReply(a)
+		#for a in s:
+		self.addReply(" ".join(s))
 		self.commands.add(CommandGoingBackToBase()) 
 
 	def goingBackToBase(self): 

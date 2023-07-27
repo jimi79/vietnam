@@ -50,7 +50,7 @@ if DEBUG:
 	#COUNT_WONDER = 2
 	#SIZE = 8
 	COUNT_WATER = 10
-	SPEED_FACTOR = 20 # 1 normal, 2 faster
+	SPEED_FACTOR = 200 # 1 normal, 2 faster
 	#COUNT_NPC_TEAMS = 0
 	#GOAL_COUNT = 5
 	#SUPERMAN = True
