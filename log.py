@@ -94,7 +94,7 @@ class Log():
 
 				s += c + goodGuys + badGuys + other
 			s += '\033[0m\n'
-		s += "legend:\n"
+		s += "legend:\na: alpha\nb: bravo\nc: charly\nE: exit\nblue: water\ngreen: forest"
 		s += "\n".join(wondersLegend)
 		s += '\n'
 		return s
